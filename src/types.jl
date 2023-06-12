@@ -16,6 +16,16 @@ struct Interval
     Interval(a, b) = a <= b ? new(a, b) : error("we can't have a > b!")
 end
 
+function Base.in(x::Real, i::Interval)
+    i.a <= x <= i.b
+end
+
+# interval intersection
+function intersect(i::Interval, j::Interval)
+    (i.a <= j.a <= i.b) || (i.a <= j.b <= i.b)
+end
+
+
 # vector of intervals
 # IntervalCovering = Vector{Interval}
 

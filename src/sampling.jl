@@ -1,4 +1,4 @@
-include("Mapper.jl");
+# include("Mapper.jl");
 """
     epsilon_net(X)
 
@@ -33,10 +33,3 @@ function epsilon_net(X::PointCloud, ϵ::Real; distance = Euclidean())
 
     return landmarks
 end
-
-X = rand(30000, 5)
-X isa PointCloud
-ϵ = 0.3
-ids = epsilon_net(X, ϵ)
-
-Y = X[ids, :]
