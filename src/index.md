@@ -1,9 +1,9 @@
-# TDAmapper.jl Documentation
+_TDA mapper algorithms_
 
 ```@docs
-unique_sort(x)
+unique_sort
 ```
 
 ```@docs
-epsilon_net(x)
+epsilon_net
 ```
