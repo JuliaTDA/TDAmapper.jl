@@ -1,0 +1,2 @@
+using LiveServer
+servedocs()
