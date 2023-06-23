@@ -1,8 +1,3 @@
-
-# Clustering
-using Clustering;
-
-
 # for each pre image
 function cluster_set(X)
     cl = try

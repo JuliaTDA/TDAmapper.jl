@@ -1,0 +1,21 @@
+"version": "2.0.0",
+"tasks": [
+    {
+        "label": "JL to HTML",
+        "type": "shell",
+        "command": "echo Finished conversion to HTML",
+        "dependsOrder": "sequence",
+        "dependsOn": ["JL to QMD", "QMD: HTML Render"]
+    },
+    {
+        "label": "JL to QMD",
+        "type": "shell",
+        "command": "julia --startup-file=no -e 'using Literate; Literate.markdown(\"${file}\",\"${fileDirname}\",flavor = Literate.QuartoFlavor(),credit=false)'"
+
+    },
+            {
+        "label": "QMD: HTML Render",
+        "type": "shell",
+        "command": "quarto render ${fileDirname}${pathSeparator}${fileBasenameNoExtension}.qmd --to html",
+        "problemMatcher": []
+    }]

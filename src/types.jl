@@ -1,10 +1,5 @@
-using ProtoStructs
-
 # metric space
 PointCloud = Matrix{<:Real}
-
-typejoin(PointCloud, Matrix{Integer})
-typejoin(Int32, Float16)
 
 # ids of coverings
 CoveringIds = Vector{<:Vector{<:Integer}}
@@ -24,10 +19,6 @@ end
 function intersect(i::Interval, j::Interval)
     (i.a <= j.a <= i.b) || (i.a <= j.b <= i.b)
 end
-
-
-# vector of intervals
-# IntervalCovering = Vector{Interval}
 
 # covered space to use
 struct CoveredSpace
@@ -72,14 +63,3 @@ abstract type AbstractMapper end
     node_origin
     mapper_graph
 end
-
-
-
-
-
-
-
-# CS = CoveredSpace([1 2 ; 3 4; 5 6], [[1], [2, 3]])
-# get_cover_id(CS, 1)
-# get_points(CS, 1)
-# convert(CoveringIds, [[], [1]]) isa CoveringIds

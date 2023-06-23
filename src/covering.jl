@@ -1,8 +1,17 @@
+"""
+    empty_covering(size)
+
+Create an empty covering of size `size`
+"""
 function empty_covering(size)
     repeat([Int64[]], size)
 end
 
-# covering methods
+"""
+    uniform
+
+Create an uniform covering of filter vector `x`.
+"""
 function uniform(
     x::Union{Vector{<:Real}, Nothing} = nothing; length::Integer = 15, overlap::Real = 100
     )
@@ -15,7 +24,11 @@ function uniform(
     radius_expanded = radius * (1 + overlap / 100)
     return [Interval(i - radius_expanded, i + radius) for i ∈ division]
 end
+"""
+    spaced
 
+Create a space covering of the filter vector `x`.
+"""
 function spaced(
     x::Union{Vector{<:Real}, Nothing}; 
     length::Integer = 10, expansion::Real = 50, padding::Integer = 2

@@ -4,8 +4,6 @@ function mapper(
     data = nothing
     ,filter_values = nothing
     ,filter_function = excentricity
-    ,distance = nothing
-    ,distance_function = Euclidean()
     ,covering = nothing
     ,covering_function = x -> uniform(x, 10, 100)
     ,clustering_function = nothing

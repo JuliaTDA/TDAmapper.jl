@@ -1,11 +1,13 @@
-# Inside make.jl
-push!(LOAD_PATH,"../src/")
-
-import Pkg; Pkg.add("Documenter");
 using Documenter, TDAmapper
 
-makedocs(sitename="My Documentation")
-
-deploydocs(
-    repo = "github.com/vituri/TDAmapper.jl.git",
-)
+makedocs(
+    sitename="TDAmapper.jl"
+    ,pages = [
+        "Introduction" => "index.md"
+        ,"The theory" => "theory.md"
+        ,"Examples" => "examples.md"
+        ,"How-to" => "how-to.md"
+        ,"Reference" => "reference.md"
+    ]
+    ,doctest = false
+    )

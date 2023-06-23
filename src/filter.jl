@@ -1,26 +1,20 @@
-# excentricity
-transpose_matrix(X::PointCloud) = permutedims(X, [2, 1])
+"""
+    excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean())
 
-function excentricity(p::Vector{<:Real}, X::PointCloud; distance = Euclidean(), transposed = true)
-    Xᵗ = if transposed == true
-        X
-    else 
-        transpose_matrix(X)
-    end
+Calculate the distance of p to every other point of X using the metric `metric`
+"""
+function excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean())
+    Xᵗ = transpose_matrix(X)
 
     n_points = size(Xᵗ)[2]
 
-    s = sum(colwise(distance, p, Xᵗ)) / n_points                    
+    s = sum(colwise(metric, p, Xᵗ)) / n_points                    
 
     return s
 end
 
-function excentricity(X::PointCloud; distance = Euclidean(), transposed = false)
-    Xᵗ = if transposed == true
-        X
-    else 
-       transpose_matrix(X)
-    end
+function excentricity(X::PointCloud; metric = Euclidean())
+    Xᵗ = transpose_matrix(X)    
     
     n_points = size(Xᵗ)[2]
     
@@ -30,8 +24,10 @@ function excentricity(X::PointCloud; distance = Euclidean(), transposed = false)
 
     @threads for i ∈ 1:n_points 
         p = Xᵗ[:, i]       
-        s[i] = excentricity(p, Xᵗ; distance = distance)
+        s[i] = excentricity(p, Xᵗ; metric = metric)
     end
 
     return s
 end
+
+export excentricity

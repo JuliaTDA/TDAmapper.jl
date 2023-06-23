@@ -1,8 +1,9 @@
 # include("Mapper.jl");
 """
-    epsilon_net(X)
+    epsilon_net(X, ϵ; distance)
 
-Returns a vector of indeces of X
+Cover the PointCloud X with balls of radius ϵ. 
+Returns the vector of indexes of X that are the ball's centers.
 """
 function epsilon_net(X::PointCloud, ϵ::Real; distance = Euclidean())
     n = size(X)[1]

@@ -1,3 +1,9 @@
+"""
+    epsilon_neighbors(distances, ϵ)
+
+Given a vector of real numbers distances, return the indeces 
+for which distances < ϵ.
+"""
 function epsilon_neighbors(distances, ϵ)
     findall(x -> x < ϵ, distances)
 end
