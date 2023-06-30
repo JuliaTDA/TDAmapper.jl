@@ -1,13 +1,19 @@
-# for each pre image
-function cluster_set(X)
+"""
+    cluster_set
+
+"""
+function cluster_set(X::PointCloud; metric = Euclidean())
     cl = try
-        dbscan(transpose(X), 0.1, metric = Euclidean()).assignments
+        dbscan(transpose(X), 0.1, metric = metric).assignments
     catch
         repeat([1], size(X)[1])
     end
 end
+"""
+    split_pre_image
 
-function split_pre_image(X, id_pbs)
+"""
+function split_pre_image(X::PointCloud, id_pbs)
     clustered_pb_ids = []
     node_origin = Int32[]
 

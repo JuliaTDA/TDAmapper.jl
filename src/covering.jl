@@ -1,3 +1,5 @@
+using ..TDAmapper
+
 """
     empty_covering(size)
 
@@ -8,22 +10,26 @@ function empty_covering(size)
 end
 
 """
-    uniform
+    uniform(x::Vector{<:Real}; length::Integer = 15, overlap::Real = 100)
 
-Create an uniform covering of filter vector `x`.
+Create an uniform covering of filter vector `x`. First we order `x` and then split it in `length` elements, then we create the overlaps.
 """
 function uniform(
-    x::Union{Vector{<:Real}, Nothing} = nothing; length::Integer = 15, overlap::Real = 100
+    x::Vector{<:Real}; length::Integer = 15, overlap::Real = 100
     )
-    if x === nothing
-        return x -> uniform(x; length = length, overlap = overlap)
-    end
 
     division = [range(min(x...), max(x...), length = length);]
     radius = (division[2] - division[1]) / 2
     radius_expanded = radius * (1 + overlap / 100)
     return [Interval(i - radius_expanded, i + radius) for i ∈ division]
 end
+
+function uniform(
+    length::Integer = 15, overlap::Real = 100
+    )
+    return x -> uniform(x; length = length, overlap = overlap)
+end
+
 """
     spaced
 
@@ -33,11 +39,6 @@ function spaced(
     x::Union{Vector{<:Real}, Nothing}; 
     length::Integer = 10, expansion::Real = 50, padding::Integer = 2
 )  
-
-    if x === nothing 
-        return x -> spaced(x; length = length, expansion = expansion, padding = padding)
-    end
-
     n = size(x)[1]
 
     x_ord = sort(x)
@@ -65,6 +66,12 @@ function spaced(
     end
 
     return intervals
+end
+
+function spaced(    
+    length::Integer = 10, expansion::Real = 50, padding::Integer = 2
+)  
+    return x -> spaced(x; length = length, expansion = expansion, padding = padding)
 end
 
 # spaced(x; expansion = 10, padding = 0)

@@ -1,11 +1,13 @@
 # metric space
-PointCloud = Matrix{<:Real}
+# abstract type AbstractPointCloud end
+PointCloud = Matrix{<:Real} #<: AbstractPointCloud
 
 # ids of coverings
 CoveringIds = Vector{<:Vector{<:Integer}}
 
 # real intervals
-struct Interval
+# abstract type AbstractInterval end
+struct Interval #<: AbstractInterval
     a::Float32
     b::Float32
     Interval(a, b) = a <= b ? new(a, b) : error("we can't have a > b!")
@@ -20,25 +22,6 @@ function intersect(i::Interval, j::Interval)
     (i.a <= j.a <= i.b) || (i.a <= j.b <= i.b)
 end
 
-# covered space to use
-struct CoveredSpace
-    X::PointCloud
-    covering_ids::CoveringIds
-
-    # add some check here?
-
-    CoveredSpace(X, covering_ids) = new(X, covering_ids)
-end
-
-# criar método específico pra quando coloca mais de um inteiro?
-function get_cover_id(CS::CoveredSpace, id::Integer)
-    return CS.covering_ids[id]
-end
-
-function get_points(CS::CoveredSpace, id::Integer)
-    return CS.X[CS.covering_ids[id], :]
-end
-
 function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: CoveringIds}
     [convert.(Int32, c) for c ∈ x]
 end
@@ -51,15 +34,13 @@ end
 abstract type AbstractMapper end
 
 # classic mapper
-@kwdef mutable struct Mapper <: AbstractMapper
-    X
-    data
-    filter_function
-    filter_values
-    covering
-    covering_function
-    clustering_function
-    clustered_pb_ids
-    node_origin
-    mapper_graph
+@kwdef struct Mapper <: AbstractMapper
+    X::PointCloud,
+    filter_values::Vector{<:Number},
+    covering_intervals::Vector{<:Interval},
+    clustering::Function,
+    clustered_pb_ids,
+    node_origin,
+    adj_matrix,
+    mapper_graph::Graph
 end

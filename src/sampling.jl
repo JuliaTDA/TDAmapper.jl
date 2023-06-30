@@ -1,11 +1,11 @@
-# include("Mapper.jl");
+using ..TDAmapper
 """
     epsilon_net(X, ϵ; distance)
 
 Cover the PointCloud X with balls of radius ϵ. 
 Returns the vector of indexes of X that are the ball's centers.
 """
-function epsilon_net(X::PointCloud, ϵ::Real; distance = Euclidean())
+function epsilon_net(X::PointCloud, ϵ::Number; distance = Euclidean())
     n = size(X)[1]
     Xᵗ = transpose_matrix(X);
 
@@ -19,7 +19,7 @@ function epsilon_net(X::PointCloud, ϵ::Real; distance = Euclidean())
         current_center = findfirst(==(0), covered)
         push!(landmarks, current_center)
         
-        distances = colwise(Euclidean(), X[current_center, :], Xᵗ)
+        distances = colwise(distance(), X[current_center, :], Xᵗ)
 
         close_ids = findall(x -> x < ϵ, distances)
 

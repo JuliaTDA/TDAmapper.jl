@@ -1,3 +1,5 @@
+using ..TDAmapper
+
 """
     unique_sort(x)
 

@@ -3,8 +3,12 @@
 
 Calculate the distance of p to every other point of X using the metric `metric`
 """
-function excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean())
-    Xᵗ = transpose_matrix(X)
+function excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean(), transposed = false)
+    Xᵗ = if transposed == true
+        X
+    else
+        transpose_matrix(X)
+    end
 
     n_points = size(Xᵗ)[2]
 
@@ -13,8 +17,17 @@ function excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean())
     return s
 end
 
-function excentricity(X::PointCloud; metric = Euclidean())
-    Xᵗ = transpose_matrix(X)    
+"""
+    excentricity(X::PointCloud; metric = Euclidean())
+
+Calculate the distance of every point p ∈ X to every other point of X using the metric `metric`
+"""
+function excentricity(X::PointCloud; metric = Euclidean(), transposed = false)
+    Xᵗ = if transposed == true
+        X
+    else
+        transpose_matrix(X)
+    end
     
     n_points = size(Xᵗ)[2]
     
@@ -24,10 +37,8 @@ function excentricity(X::PointCloud; metric = Euclidean())
 
     @threads for i ∈ 1:n_points 
         p = Xᵗ[:, i]       
-        s[i] = excentricity(p, Xᵗ; metric = metric)
+        s[i] = excentricity(p, Xᵗ; metric = metric, transposed = true)
     end
 
     return s
 end
-
-export excentricity
