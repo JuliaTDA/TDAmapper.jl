@@ -34,13 +34,17 @@ end
 abstract type AbstractMapper end
 
 # classic mapper
-@kwdef struct Mapper <: AbstractMapper
-    X::PointCloud,
-    filter_values::Vector{<:Number},
-    covering_intervals::Vector{<:Interval},
-    clustering::Function,
-    clustered_pb_ids,
-    node_origin,
-    adj_matrix,
+@kwdef struct Mapper #<: AbstractMapper
+    X::PointCloud
+    filter_values::Vector{<:Number}
+    covering_intervals::Vector{<:Interval}
+    clustering::Function
+    clustered_pb_ids
+    node_origin
+    adj_matrix
     mapper_graph::Graph
+end
+
+function Base.show(io::IO, mp::Mapper)
+    print(io, "Mapper graph of X")
 end

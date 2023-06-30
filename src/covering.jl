@@ -25,7 +25,7 @@ function uniform(
 end
 
 function uniform(
-    length::Integer = 15, overlap::Real = 100
+    ;length::Integer = 15, overlap::Real = 100
     )
     return x -> uniform(x; length = length, overlap = overlap)
 end
@@ -69,7 +69,7 @@ function spaced(
 end
 
 function spaced(    
-    length::Integer = 10, expansion::Real = 50, padding::Integer = 2
+    ;length::Integer = 10, expansion::Real = 50, padding::Integer = 2
 )  
     return x -> spaced(x; length = length, expansion = expansion, padding = padding)
 end
