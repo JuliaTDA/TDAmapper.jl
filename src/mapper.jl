@@ -54,7 +54,7 @@ function mapper(
     ;clustering = uniform(length = 12, overlap = 100)    
     )
 
-    id_pbs = pre_image_id(filter_values, covering)
+    id_pbs = pre_image_id(filter_values, covering_intervals)
     
     clustered_pb_ids, node_origin = split_pre_image(X, id_pbs)
     
