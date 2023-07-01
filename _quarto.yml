@@ -1,0 +1,37 @@
+project:
+  type: website
+  output-dir: .
+
+website:
+  title: "TDAmapper"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - index.qmd
+
+      - section: "Start here"
+        contents:
+          - index.qmd
+      - section: "Tutorials"
+        contents:
+          - layout.qmd
+      - section: "Guides"
+        contents:
+          - layout.qmd
+      - section: "Fundamentals"
+        contents:
+          - layout.qmd
+      - section: "References"
+        contents:
+          - layout.qmd
+
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+
+
