@@ -9,8 +9,36 @@
   {
     "objectID": "index.html",
     "href": "index.html",
+    "title": "Introduction",
+    "section": "",
+    "text": "aaaa\n\nusing TDAmapper\n\n# X = Datasets.circle(1000)\n# fv = excentricity(X)\n# fv = X[:, 1]\n# cv = uniform(fv)\n\n# mp = mapper(X, fv, cv);\n# mp"
+  },
+  {
+    "objectID": "index.html#this-is-julia-code",
+    "href": "index.html#this-is-julia-code",
     "title": "TDAmapper!",
     "section": "",
-    "text": "Introduction\nThis is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+    "text": "texto texto texto texto\n\n1 + 1\n\n2\n\n\ntexto texto texto texto texto\n\nusing TDAmapper\n\nX = Datasets.circle(1000)\nfv = excentricity(X)\nfv = X[:, 1]\ncv = uniform(fv)\n\nmp = mapper(X, fv, cv);\nmp\n\nMapper graph of X\n\n\ntexto texto texto texto texto texto"
+  },
+  {
+    "objectID": "index.html#this-is-payto-code",
+    "href": "index.html#this-is-payto-code",
+    "title": "TDAmapper!",
+    "section": "",
+    "text": "1+1"
+  },
+  {
+    "objectID": "sampling.html",
+    "href": "sampling.html",
+    "title": "Sampling data",
+    "section": "",
+    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 72      Time: 0:00:00"
+  },
+  {
+    "objectID": "sampling.html#ϵ-net",
+    "href": "sampling.html#ϵ-net",
+    "title": "Sampling data",
+    "section": "",
+    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 72      Time: 0:00:00"
   }
 ]

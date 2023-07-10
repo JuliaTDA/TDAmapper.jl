@@ -1,13 +1,18 @@
 ---
-title: "TDAmapper!"
+title: "Introduction"
 ---
 
-# Introduction
+aaaa
 
-This is a Quarto website.
+```{julia}
+using TDAmapper
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+# X = Datasets.circle(1000)
+# fv = excentricity(X)
+# fv = X[:, 1]
+# cv = uniform(fv)
 
-```{r}
-1 + 1
+# mp = mapper(X, fv, cv);
+# mp
 ```
+

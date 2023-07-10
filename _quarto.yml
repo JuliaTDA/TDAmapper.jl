@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: .
 
+jupyter: julia-1.9
+
 website:
   title: "TDAmapper"
   sidebar:
@@ -15,7 +17,7 @@ website:
           - index.qmd
       - section: "Tutorials"
         contents:
-          - layout.qmd
+          - sampling.qmd
       - section: "Guides"
         contents:
           - layout.qmd
@@ -29,7 +31,7 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: cosmos
     css: styles.css
     toc: true
 
