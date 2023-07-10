@@ -2,18 +2,25 @@
     cluster_set
 
 """
-function cluster_set(X::PointCloud; metric = Euclidean())
+function cluster_dbscan(X::PointCloud; radius = 0.1, metric = Euclidean())
     cl = try
-        dbscan(transpose(X), 0.1, metric = metric).assignments
+        dbscan(transpose(X), radius, metric = metric).assignments
     catch
         repeat([1], size(X)[1])
     end
 end
+
+function cluster_dbscan(radius = 0.1, metric = Euclidean())
+    x -> cluster_dbscan(x, radius = radius, metric = metric)
+end
+
 """
     split_pre_image
 
 """
-function split_pre_image(X::PointCloud, id_pbs)
+function split_pre_image(
+    X::PointCloud, id_pbs; clustering = cluster_dbscan
+    )
     clustered_pb_ids = []
     node_origin = Int32[]
 
@@ -23,7 +30,7 @@ function split_pre_image(X::PointCloud, id_pbs)
         pb = X[id_pbs[i], :]
     
         # store the cluster of each point
-        cl = cluster_set(pb)
+        cl = cluster_dbscan(pb)
         
         # split the pre image according to the clustering algorithm
         for cluster_id ∈ unique_sort(cl)

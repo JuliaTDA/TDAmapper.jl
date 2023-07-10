@@ -44,20 +44,29 @@
 #         )
 # end
 
-using ..TDAmapper
+# using ..TDAmapper
 
-# Mapper
+"""
+    mapper(X, filter_values, covering_intervals, clustering)
+
+Create the mapper graph of a given pointcloud `X`,
+with a vector of `filter_values`, using the
+`covering_intervals` and a `clustering` function.
+"""
 function mapper(
     X::PointCloud
     ,filter_values::Vector{<:Real}
     ,covering_intervals::Vector{<:Interval}
-    ;clustering = uniform(length = 12, overlap = 100)    
+    ;clustering = cluster_dbscan
     )
 
+    # calculate the pullback
     id_pbs = pre_image_id(filter_values, covering_intervals)
     
-    clustered_pb_ids, node_origin = split_pre_image(X, id_pbs)
+    # cluster each pre-image
+    clustered_pb_ids, node_origin = split_pre_image(X, id_pbs, clustering = clustering)
     
+    # create the mapper graph
     adj_matrix = adj_matrix_from_pb(clustered_pb_ids)
     
     mapper_graph = Graph(adj_matrix)

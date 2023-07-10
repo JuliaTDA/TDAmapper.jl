@@ -9,7 +9,7 @@ module TDAmapper
 
 # using BenchmarkTools; 
 using Distances; using ProgressMeter;
-using DataFrames
+using DataFrames; using NearestNeighbors;
 
 using Graphs
 
@@ -17,7 +17,7 @@ import Base.Threads.@threads
 
 # mapper
 include("types.jl");
-include("example data.jl");
+
 include("neighborhoods.jl");
 include("filter.jl");
 include("covering.jl");
@@ -31,16 +31,24 @@ include("utils.jl");
 # ball mapper
 include("sampling.jl");
 
+# example sets
+include("example data.jl");
+using .Datasets
+
+# types
+export PointCloud,
+    CoveringIds,
+    Mapper
+
+# functions
 export unique_sort,
-    epsilon_net, 
-    PointCloud,
+    epsilon_net,     
     excentricity,
     uniform,
     pre_image_id,
     split_pre_image,
     adj_matrix_from_pb,
-    mapper,
-    Mapper,
-    Datasets
+    mapper,        
+    transpose_matrix
 
 end # module

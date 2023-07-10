@@ -1,5 +1,3 @@
-using ..TDAmapper
-
 """
     empty_covering(size)
 
