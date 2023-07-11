@@ -11,20 +11,30 @@ module TDAmapper
 using Distances; using ProgressMeter;
 using DataFrames; using NearestNeighbors;
 
-using Graphs
-
 import Base.Threads.@threads
 
 # mapper
 include("types.jl");
+export PointCloud,
+    CoveringIds,
+    Mapper
 
 include("neighborhoods.jl");
 include("filter.jl");
+
 include("covering.jl");
+export uniform, spaced
+
 include("clustering.jl");
+export cluster_dbscan
+
 include("pullbacks.jl");
 include("graph.jl");
+
+using Graphs
 include("mapper.jl");
+export mapper
+
 # include("plots.jl");
 include("utils.jl");
 
@@ -35,10 +45,10 @@ include("sampling.jl");
 include("example data.jl");
 using .Datasets
 
-# types
-export PointCloud,
-    CoveringIds,
-    Mapper
+using Colors; using ColorSchemes;
+using CairoMakie; using GraphMakie; import NetworkLayout
+include("plots.jl")
+export rescale, colorscale, mapper_plot
 
 # functions
 export unique_sort,
@@ -48,7 +58,6 @@ export unique_sort,
     pre_image_id,
     split_pre_image,
     adj_matrix_from_pb,
-    mapper,        
     transpose_matrix
 
 end # module

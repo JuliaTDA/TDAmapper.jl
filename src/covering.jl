@@ -34,7 +34,7 @@ end
 Create a space covering of the filter vector `x`.
 """
 function spaced(
-    x::Union{Vector{<:Real}, Nothing}; 
+    x::Vector{<:Real}; 
     length::Integer = 10, expansion::Real = 50, padding::Integer = 2
 )  
     n = size(x)[1]

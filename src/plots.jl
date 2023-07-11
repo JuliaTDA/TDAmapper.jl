@@ -1,12 +1,7 @@
-using Graphs; 
-using Colors; using ColorSchemes;
-using CairoMakie
-using GraphMakie
-using NetworkLayout
-
-# Ploting
-
-colorscale = function(v)
+"""
+Given a numeric vector `v`, create a color vector
+"""
+function colorscale(v)
     min_val = minimum(v)
     max_val = maximum(v)
     range_val = max_val - min_val
@@ -18,6 +13,9 @@ colorscale = function(v)
     return(color_vec)   
 end
 
+"""
+Rescale a vector to be between `min` and `max`
+"""
 function rescale(x; min = 0, max = 1)
     dif = max - min
     if dif ≈ 0
@@ -26,4 +24,25 @@ function rescale(x; min = 0, max = 1)
 
     y = (x .- minimum(x)) / (maximum(x) - minimum(x)) .* (dif) .+ min
     return y
+end
+
+"""
+    mapper_plot
+"""
+function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
+
+    colors = map(mp.clustered_pb_ids) do pb
+        values[pb] |> maximum
+    end |> colorscale
+    
+    node_sizes = rescale(map(length, mp.clustered_pb_ids), min = 10, max = 80)
+    
+    g = mp.mapper_graph
+    
+    f, ax, p = graphplot(
+        g, node_color = colors, node_size = node_sizes
+        ,layout = NetworkLayout.Spring(dim = dim)
+        # , nlabels = string.(mp.node_origin)
+        );
+     
 end
