@@ -10,6 +10,7 @@ module TDAmapper
 # using BenchmarkTools; 
 using Distances; using ProgressMeter;
 using DataFrames; using NearestNeighbors;
+using Graphs
 
 import Base.Threads.@threads
 
@@ -31,7 +32,7 @@ export cluster_dbscan
 include("pullbacks.jl");
 include("graph.jl");
 
-using Graphs
+export Graph
 include("mapper.jl");
 export mapper
 
