@@ -83,10 +83,14 @@ X = randn(3, 5000)
 fv = excentricity(X)
 # fv = X[1, :]
 cv = uniform(fv, overlap = 100)
-cv = spaced(fv; )
+# cv = spaced(fv; )
 
 mp = mapper(X, fv, cv; clustering = x -> cluster_dbscan(x; radius = 0.5));
 
+mp.mapper_graph
+
+using GraphMakie
+using CairoMakie
 CairoMakie.activate!()
 mapper_plot(mp)
 
@@ -96,3 +100,32 @@ WGLMakie.activate!()
 set_theme!(resolution=(800, 600))
 
 mapper_plot(mp, dim = 3)
+
+# first empty bin
+
+using Plots
+using Distances
+using Clustering
+using StatsPlots
+
+X = hcat(
+    randn(2, 1000)
+    ,randn(2, 1000) .+ 10
+)
+
+scatter(X[1, :], X[2, :])
+
+dists = pairwise(Euclidean(), X, dims = 2)
+
+hc = hclust(dists, branchorder=:optimal)
+plot(hc, xticks=false)
+
+cutree(hc, h = 1)
+plot(cutree)
+
+bin_vector(dists, num_bins = 10) |> println
+
+
+function cluster_empty_bin(X::PointCloud; n_bins::Integer = 10, minimum_points_per_bin::Integer = 1)
+
+end

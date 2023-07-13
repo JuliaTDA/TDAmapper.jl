@@ -3,7 +3,7 @@
 
 Mapper-like algorithms from Topological Data Analysis.
 
-See https://vituri.github.io/TDAmapper.jl/ for documentation.
+See https://juliatda.github.io/TDAmapper.jl/ for documentation.
 """
 module TDAmapper
 
@@ -18,13 +18,19 @@ import Base.Threads.@threads
 include("types.jl");
 export PointCloud,
     CoveringIds,
-    Mapper
+    Mapper,
+    Interval,
+    in,
+    intersect;
 
-include("neighborhoods.jl");
+# not needed anymore; using NearestNeighbors.jl
+# include("neighborhoods.jl");
+
 include("filter.jl");
+export excentricity;
 
 include("covering.jl");
-export uniform, spaced
+export uniform, spaced;
 
 include("clustering.jl");
 export cluster_dbscan
@@ -32,15 +38,18 @@ export cluster_dbscan
 include("pullbacks.jl");
 include("graph.jl");
 
-export Graph
+export Graph;
 include("mapper.jl");
-export mapper
+export mapper;
 
 # include("plots.jl");
 include("utils.jl");
+export unique_sort,
+    transpose_matrix;
 
 # ball mapper
 include("sampling.jl");
+export epsilon_net;
 
 # example sets
 include("example data.jl");
@@ -50,15 +59,5 @@ using Colors; using ColorSchemes;
 using CairoMakie; using GraphMakie; import NetworkLayout
 include("plots.jl")
 export rescale, colorscale, mapper_plot
-
-# functions
-export unique_sort,
-    epsilon_net,     
-    excentricity,
-    uniform,
-    pre_image_id,
-    split_pre_image,
-    adj_matrix_from_pb,
-    transpose_matrix
 
 end # module

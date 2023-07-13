@@ -31,6 +31,6 @@ function excentricity(X::PointCloud; metric::SemiMetric = Euclidean())
     return s
 end
 
-function umap(X::PointCloud) 
-    umap(X)
-end
+# function umap(X::PointCloud) 
+#     umap(X)
+# end
