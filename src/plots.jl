@@ -44,5 +44,10 @@ function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
         ,layout = NetworkLayout.Spring(dim = dim)
         # , nlabels = string.(mp.node_origin)
         );
-     
+    hidedecorations!(ax); hidespines!(ax)
+    ax.aspect = DataAspect()
+
+    return f, ax, p     
 end
+
+# https://beautiful.makie.org/dev/examples/generated/2d/linesegments/RRGraph/

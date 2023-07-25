@@ -51,10 +51,6 @@ export unique_sort,
 include("sampling.jl");
 export epsilon_net;
 
-# example sets
-include("example data.jl");
-using .Datasets
-
 using Colors; using ColorSchemes;
 using CairoMakie; using GraphMakie; import NetworkLayout
 include("plots.jl")

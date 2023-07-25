@@ -1,4 +1,6 @@
-# adj matrix
+"""
+Create the adjacent matrix from a covering
+"""
 function adj_matrix_from_covering(covering::CoveringIds)
     n = length(covering)
     adj_matrix = zeros(Int32, n, n)
@@ -17,7 +19,9 @@ function adj_matrix_from_covering(covering::CoveringIds)
     return adj_matrix
 end
 
-
+"""
+Create the adjacent matrix from a pullback
+"""
 function adj_matrix_from_pb(clustered_pb_ids)
     n = size(clustered_pb_ids)[1]
     adj_matrix = zeros(Int32, n, n)

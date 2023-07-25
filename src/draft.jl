@@ -77,11 +77,12 @@ scatter!(Y[1, :], Y[2, :], color = :red)
 
 # plots
 using TDAmapper
+import GeometricDatasets as gd
 
-X = TDAmapper.Datasets.circle(2000) |> transpose_matrix
-X = randn(3, 5000)
+X = gd.sphere(2000)
+# X = randn(2, 2000)
 fv = excentricity(X)
-# fv = X[1, :]
+fv = X[1, :]
 cv = uniform(fv, overlap = 100)
 # cv = spaced(fv; )
 
@@ -91,8 +92,21 @@ mp.mapper_graph
 
 using GraphMakie
 using CairoMakie
+
 CairoMakie.activate!()
-mapper_plot(mp)
+ff, aa, pp = mapper_plot(mp)
+Colorbar(f[1, 2], p)
+f[1, 1]
+
+
+
+fig = Figure()
+ax = Axis(fig[1, 1])
+hm = heatmap!(ax, randn(20, 20))
+hm = pp
+Colorbar(fig[1, 2], hm)
+fig
+
 
 using JSServe; using WGLMakie
 Page(exportable=true, offline=true)
@@ -102,7 +116,7 @@ set_theme!(resolution=(800, 600))
 mapper_plot(mp, dim = 3)
 
 # first empty bin
-
+using TDAmapper
 using Plots
 using Distances
 using Clustering
@@ -129,3 +143,40 @@ bin_vector(dists, num_bins = 10) |> println
 function cluster_empty_bin(X::PointCloud; n_bins::Integer = 10, minimum_points_per_bin::Integer = 1)
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using CairoMakie
+
+fig, ax, hm = heatmap(randn(20, 20))
+Colorbar(fig[1, 2], hm)
+fig
+
+
+
