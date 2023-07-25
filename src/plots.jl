@@ -50,4 +50,9 @@ function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
     return f, ax, p     
 end
 
-# https://beautiful.makie.org/dev/examples/generated/2d/linesegments/RRGraph/
+# !! https://beautiful.makie.org/dev/examples/generated/2d/linesegments/RRGraph/
+# https://docs.makie.org/stable/examples/plotting_functions/linesegments/
+
+using CairoMakie
+
+f = Figure()
