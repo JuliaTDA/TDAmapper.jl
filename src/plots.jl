@@ -26,33 +26,56 @@ function rescale(x; min = 0, max = 1)
     return y
 end
 
-"""
-    mapper_plot
-"""
-function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
+# function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
 
-    colors = map(mp.clustered_pb_ids) do pb
-        values[pb] |> maximum
-    end |> colorscale
+#     colors = map(mp.clustered_pb_ids) do pb
+#         values[pb] |> maximum
+#     end |> colorscale
     
-    node_sizes = rescale(map(length, mp.clustered_pb_ids), min = 10, max = 80)
+#     node_sizes = rescale(map(length, mp.clustered_pb_ids), min = 10, max = 80)
     
-    g = mp.mapper_graph
+#     g = mp.mapper_graph
     
-    f, ax, p = graphplot(
-        g, node_color = colors, node_size = node_sizes
-        ,layout = NetworkLayout.Spring(dim = dim)
-        # , nlabels = string.(mp.node_origin)
-        );
-    hidedecorations!(ax); hidespines!(ax)
-    ax.aspect = DataAspect()
+#     f, ax, p = graphplot(
+#         g, node_color = colors, node_size = node_sizes
+#         ,layout = NetworkLayout.Spring(dim = dim)
+#         # , nlabels = string.(mp.node_origin)
+#         );
+#     hidedecorations!(ax); hidespines!(ax)
+#     ax.aspect = DataAspect()
 
-    return f, ax, p     
-end
+#     return f, ax, p     
+# end
 
 # !! https://beautiful.makie.org/dev/examples/generated/2d/linesegments/RRGraph/
 # https://docs.makie.org/stable/examples/plotting_functions/linesegments/
 
-using CairoMakie
-
-f = Figure()
+"""
+    mapper_plot
+"""
+function mapper_plot(mp::Mapper, values = mp.filter_values, dim = 2)    
+    pos = NetworkLayout.spring(mp.adj_matrix)
+    x = pos .|> first
+    y = pos .|> last
+    
+    xs = Float64[];
+    ys = Float64[];
+    
+    adj = mp.adj_matrix
+    for i ∈ 1:size(adj)[1]
+        for j ∈ i:size(adj)[1]
+            if adj[i, j] == 1
+                push!(xs, x[i], x[j])
+                push!(ys, y[i], y[j])
+            end
+        end
+    end
+    
+    f = Figure();
+    Axis(f[1, 1])
+    
+    linesegments!(xs, ys)    
+    scatter!(x, y, markersize = 25)
+    
+    f
+end
