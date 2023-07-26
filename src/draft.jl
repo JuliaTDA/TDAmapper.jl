@@ -27,16 +27,19 @@ mp = mapper(X, fv, cv; clustering = x -> cluster_dbscan(x; radius = 0.5));
 
 mp.mapper_graph
 
+mapper_plot(mp, rand(["a", "b", "a/b"], 27))
+mapper_plot(mp, rand(27))
 
 
-using GraphMakie
-using CairoMakie
 
-CairoMakie.activate!()
-f, ax, p = mapper_plot(mp)
-f
-Colorbar(f[1, 2], p)
-f[1, 1]
+
+
+
+
+
+
+
+
 
 
 

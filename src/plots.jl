@@ -53,7 +53,46 @@ end
 """
     mapper_plot
 """
-function mapper_plot(mp::Mapper, values = mp.filter_values, dim = 2)    
+function mapper_plot(mp::Mapper, values::Vector{<:AbstractString} = mp.filter_values)
+    pos = NetworkLayout.spring(mp.adj_matrix)
+    x = pos .|> first
+    y = pos .|> last
+    
+    xs = Float64[];
+    ys = Float64[];
+    
+    adj = mp.adj_matrix
+    for i ∈ 1:size(adj)[1]
+        for j ∈ i:size(adj)[1]
+            if adj[i, j] == 1
+                push!(xs, x[i], x[j])
+                push!(ys, y[i], y[j])
+            end
+        end
+    end
+    
+    df = DataFrame(x = x, y = y, class = values)
+    dfs = groupby(df, :class) |> collect
+
+    f = Figure();
+    ax = Axis(f[1, 1])
+
+    linesegments!(ax, xs, ys)    
+
+    for dff ∈ dfs
+        scatter!(ax, dff.x, dff.y, markersize = 25, label = dff.class[1])
+    end
+
+    Legend(f[1, 2], ax, merge = true)
+
+    hidedecorations!(ax); hidespines!(ax)
+    ax.aspect = DataAspect()
+    
+    return(f)
+    
+end
+
+function mapper_plot(mp::Mapper, values::Vector{<:Number} = mp.filter_values)
     pos = NetworkLayout.spring(mp.adj_matrix)
     x = pos .|> first
     y = pos .|> last
@@ -72,10 +111,12 @@ function mapper_plot(mp::Mapper, values = mp.filter_values, dim = 2)
     end
     
     f = Figure();
-    Axis(f[1, 1])
-    
-    linesegments!(xs, ys)    
-    scatter!(x, y, markersize = 25)
-    
-    f
+    ax = Axis(f[1, 1])    
+    linesegments!(ax, xs, ys)    
+    scatter!(ax, x, y, markersize = 25, color = rand(27))
+
+    hidedecorations!(ax); hidespines!(ax)
+    ax.aspect = DataAspect()
+    Colorbar(f[1, 2])
+    return(f)    
 end
