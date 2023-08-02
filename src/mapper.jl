@@ -37,7 +37,7 @@ function mapper(
         ,filter_values = filter_values
         ,covering_intervals = covering_intervals
         ,clustering = clustering
-        ,clustered_pb_ids = clustered_pb_ids
+        ,points_in_node = clustered_pb_ids
         ,node_origin = node_origin
         ,adj_matrix = adj_matrix
         ,mapper_graph = mapper_graph

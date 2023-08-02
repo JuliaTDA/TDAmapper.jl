@@ -53,7 +53,11 @@ end
 """
     mapper_plot
 """
-function mapper_plot(mp::Mapper, values::Vector{<:AbstractString} = mp.filter_values)
+function mapper_plot(
+    mp::Mapper, values::Vector{<:AbstractString}
+    ;node_size = nothing
+    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
+    )
     pos = NetworkLayout.spring(mp.adj_matrix)
     x = pos .|> first
     y = pos .|> last
@@ -69,18 +73,27 @@ function mapper_plot(mp::Mapper, values::Vector{<:AbstractString} = mp.filter_va
                 push!(ys, y[i], y[j])
             end
         end
-    end
+    end    
     
-    df = DataFrame(x = x, y = y, class = values)
-    dfs = groupby(df, :class) |> collect
+    dfs = @pipe DataFrame(x = x, y = y, class = values, row = 1:length(x)) |> 
+        groupby(_, :class) |> 
+        collect
 
     f = Figure();
     ax = Axis(f[1, 1])
 
-    linesegments!(ax, xs, ys)    
+    linesegments!(ax, xs, ys)
 
-    for dff ∈ dfs
-        scatter!(ax, dff.x, dff.y, markersize = 25, label = dff.class[1])
+    if isnothing(node_size)
+        node_size = 
+            map(mp.points_in_node) do p
+                length(p)
+            end |>
+            node_scale_function
+    end
+
+    for df ∈ dfs
+        scatter!(ax, df.x, df.y, markersize = node_size[df.row], label = df.class[1])
     end
 
     Legend(f[1, 2], ax, merge = true)
@@ -88,11 +101,14 @@ function mapper_plot(mp::Mapper, values::Vector{<:AbstractString} = mp.filter_va
     hidedecorations!(ax); hidespines!(ax)
     ax.aspect = DataAspect()
     
-    return(f)
-    
+    return(f)    
 end
 
-function mapper_plot(mp::Mapper, values::Vector{<:Number} = mp.filter_values)
+function mapper_plot(
+    mp::Mapper, values::Vector{<:Number}
+    ;node_size = nothing
+    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
+    )
     pos = NetworkLayout.spring(mp.adj_matrix)
     x = pos .|> first
     y = pos .|> last
@@ -109,14 +125,62 @@ function mapper_plot(mp::Mapper, values::Vector{<:Number} = mp.filter_values)
             end
         end
     end
+
+    if isnothing(node_size)
+        node_size = 
+            map(mp.points_in_node) do p
+                length(p)
+            end |>
+            node_scale_function
+    end
     
     f = Figure();
     ax = Axis(f[1, 1])    
     linesegments!(ax, xs, ys)    
-    scatter!(ax, x, y, markersize = 25, color = rand(27))
+    scatter!(ax, x, y, markersize = node_size, color = values)
 
     hidedecorations!(ax); hidespines!(ax)
     ax.aspect = DataAspect()
     Colorbar(f[1, 2])
-    return(f)    
+    return(f)
+end
+
+function _mapper_plot(
+    mp::Mapper
+    ;node_size = nothing
+    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
+    )
+    pos = NetworkLayout.spring(mp.adj_matrix)
+    x = pos .|> first
+    y = pos .|> last
+    
+    xs = Float64[];
+    ys = Float64[];
+    
+    adj = mp.adj_matrix
+    for i ∈ 1:size(adj)[1]
+        for j ∈ i:size(adj)[1]
+            if adj[i, j] == 1
+                push!(xs, x[i], x[j])
+                push!(ys, y[i], y[j])
+            end
+        end
+    end
+
+    if isnothing(node_size)
+        node_size = 
+            @pipe mp.points_in_node |>
+            map(length, _) |>
+            node_scale_function
+    end
+    
+    f = Figure();
+    ax = Axis(f[1, 1])
+    linesegments!(ax, xs, ys)
+    scatter!(ax, x, y, markersize = 25, color = values)
+
+    hidedecorations!(ax); hidespines!(ax)
+    ax.aspect = DataAspect()
+    Colorbar(f[1, 2])
+    return(f)
 end

@@ -16,7 +16,7 @@ X = rand(10, 1000)
 using TDAmapper
 import GeometricDatasets as gd
 
-X = gd.sphere(2000)
+X = gd.torus(5000)
 # X = randn(2, 2000)
 fv = excentricity(X)
 fv = X[1, :]
@@ -27,8 +27,36 @@ mp = mapper(X, fv, cv; clustering = x -> cluster_dbscan(x; radius = 0.5));
 
 mp.mapper_graph
 
-mapper_plot(mp, rand(["a", "b", "a/b"], 27))
-mapper_plot(mp, rand(27))
+mp.points_in_node
+
+using Statistics
+using StatsBase
+
+v = map(mp.points_in_node) do ids
+    X[2, ids] |> mean
+end
+
+mapper_plot(mp, rand(["a", "b", "c", "d", "a/b"], 27))
+mapper_plot(mp, v)
+
+s = rand(["a", "b", "c"], 5)
+
+function string_count(x; max_ties = 3)
+    counting = Dict(i => length(filter(x -> x == i, s)) for i ∈ unique(s))
+    n_max = maximum(counting)[2]
+    uniques = findall(c -> values(c) == n_max, counting)
+
+    v = @pipe uniques[1:clamp(length(uniques), 1, max_ties)] |>
+        sort |>
+        join(_, "/")
+
+    return v
+end
+
+x = rand(["a", "b", "c"], 5)
+string_count(x)
+
+scatter!()
 
 
 
@@ -41,36 +69,6 @@ mapper_plot(mp, rand(27))
 
 
 
-
-
-fig = Figure()
-ax = Axis(fig[1, 1])
-hm = heatmap!(ax, randn(20, 20))
-hm = pp
-Colorbar(fig[1, 2], hm)
-fig
-
-
-using JSServe; using WGLMakie
-Page(exportable=true, offline=true)
-WGLMakie.activate!()
-set_theme!(resolution=(800, 600))
-
-mapper_plot(mp, dim = 3)
-
-# first empty bin
-using TDAmapper
-using Plots
-using Distances
-using Clustering
-using StatsPlots
-
-X = hcat(
-    randn(2, 1000)
-    ,randn(2, 1000) .+ 10
-)
-
-scatter(X[1, :], X[2, :])
 
 dists = pairwise(Euclidean(), X, dims = 2)
 

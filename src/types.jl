@@ -39,7 +39,7 @@ abstract type AbstractMapper end
     filter_values::Vector{<:Number}
     covering_intervals::Vector{<:Interval}
     clustering::Function
-    clustered_pb_ids
+    points_in_node
     node_origin
     adj_matrix
     mapper_graph::Graph

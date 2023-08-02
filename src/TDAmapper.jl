@@ -11,6 +11,7 @@ module TDAmapper
 using Distances; using ProgressMeter;
 using DataFrames; using NearestNeighbors;
 using Graphs
+using Pipe: @pipe
 
 import Base.Threads.@threads
 
@@ -52,7 +53,7 @@ include("sampling.jl");
 export epsilon_net;
 
 using Colors; using ColorSchemes;
-using CairoMakie; using GraphMakie; import NetworkLayout
+using GLMakie; import NetworkLayout
 include("plots.jl")
 export rescale, colorscale, mapper_plot
 
