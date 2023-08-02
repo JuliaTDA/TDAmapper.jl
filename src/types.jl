@@ -34,7 +34,7 @@ end
 abstract type AbstractMapper end
 
 # classic mapper
-@kwdef struct Mapper #<: AbstractMapper
+@kwdef struct Mapper <: AbstractMapper
     X::PointCloud
     filter_values::Vector{<:Number}
     covering_intervals::Vector{<:Interval}
@@ -45,6 +45,17 @@ abstract type AbstractMapper end
     mapper_graph::Graph
 end
 
-function Base.show(io::IO, mp::Mapper)
+# classic mapper
+@kwdef struct BallMapper <: AbstractMapper
+    X::PointCloud
+    L::Vector{<:Integer}
+    clustering::Function
+    points_in_node
+    node_origin
+    adj_matrix
+    mapper_graph::Graph
+end
+
+function Base.show(io::IO, mp::AbstractMapper)
     print(io, "Mapper graph of X")
 end

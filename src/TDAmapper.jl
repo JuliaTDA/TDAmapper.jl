@@ -20,6 +20,8 @@ include("types.jl");
 export PointCloud,
     CoveringIds,
     Mapper,
+    BallMapper,
+    AbstractMapper,
     Interval,
     in,
     intersect;
@@ -41,20 +43,25 @@ include("graph.jl");
 
 export Graph;
 include("mapper.jl");
-export mapper;
+export mapper,
+    adj_matrix_from_covering;
 
-# include("plots.jl");
 include("utils.jl");
 export unique_sort,
     transpose_matrix;
 
-# ball mapper
 include("sampling.jl");
 export epsilon_net;
 
 using Colors; using ColorSchemes;
 using GLMakie; import NetworkLayout
-include("plots.jl")
-export rescale, colorscale, mapper_plot
+include("plots.jl");
+export rescale, 
+    colorscale, 
+    mapper_plot, 
+    calculate_node_colors;
+
+include("ball_mapper.jl");
+export ball_mapper;
 
 end # module

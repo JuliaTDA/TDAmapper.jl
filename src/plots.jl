@@ -54,7 +54,7 @@ end
     mapper_plot
 """
 function mapper_plot(
-    mp::Mapper, values::Vector{<:AbstractString}
+    mp::AbstractMapper, values::Vector{<:AbstractString}
     ;node_size = nothing
     ,node_scale_function = x -> rescale(x, min = 10, max = 75)
     )
@@ -105,7 +105,7 @@ function mapper_plot(
 end
 
 function mapper_plot(
-    mp::Mapper, values::Vector{<:Number}
+    mp::AbstractMapper, values::Union{Vector{<:Number}, Nothing} = nothing
     ;node_size = nothing
     ,node_scale_function = x -> rescale(x, min = 10, max = 75)
     )
@@ -132,6 +132,10 @@ function mapper_plot(
                 length(p)
             end |>
             node_scale_function
+    end
+
+    if isnothing(values)
+        values = zeros(x)
     end
     
     f = Figure();
@@ -183,4 +187,12 @@ function _mapper_plot(
     ax.aspect = DataAspect()
     Colorbar(f[1, 2])
     return(f)
+end
+
+function calculate_node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}} , f::Function)
+    v = map(mp.points_in_node) do id
+        X[:, id] |> f
+    end
+
+    return v
 end
