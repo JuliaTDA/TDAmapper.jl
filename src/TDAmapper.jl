@@ -12,6 +12,8 @@ using Distances; using ProgressMeter;
 using DataFrames; using NearestNeighbors;
 using Graphs
 using Pipe: @pipe
+using StatsBase
+export mean;
 
 import Base.Threads.@threads
 

@@ -16,28 +16,29 @@ X = rand(10, 1000)
 using TDAmapper
 import GeometricDatasets as gd
 
-X = gd.torus(5000)
+X = gd.torus(1000)
 # X = randn(2, 2000)
 fv = excentricity(X)
-fv = X[1, :]
-cv = uniform(fv, overlap = 100)
+# fv = X[3, :]
+cv = uniform(fv, length = 25, overlap = 100)
 # cv = spaced(fv; )
 
-mp = mapper(X, fv, cv; clustering = x -> cluster_dbscan(x; radius = 0.5));
+using GLMakie
+scatter(X[1, :], X[2, :], X[3, :], color = fv)
 
-mp.mapper_graph
-
-mp.points_in_node
+mp = mapper(X, fv, cv; clustering = x -> cluster_dbscan(x; radius = 1));
 
 using Statistics
 using StatsBase
 
 v = map(mp.points_in_node) do ids
-    X[2, ids] |> mean
+    #X[2, ids] |> mean
+    fv[ids] |> mean
 end
 
-mapper_plot(mp, rand(["a", "b", "c", "d", "a/b"], 27))
 mapper_plot(mp, v)
+
+mapper_plot(mp, rand(["a", "b", "c", "d", "a/b"], 27))
 
 s = rand(["a", "b", "c"], 5)
 
@@ -66,119 +67,82 @@ scatter!()
 
 
 
+# plots
+using TDAmapper
+import GeometricDatasets as gd
+
+X = gd.torus(1000)
+# X = randn(2, 2000)
+fv = excentricity(X)
+fv = X[1, :]
+
+using GLMakie
+scatter(X[1, :], X[2, :], X[3, :], color = fv)
+
+L = rand(1:200, 100) |> unique
+bmp = ball_mapper(X, L, ϵ = 1);
+bmp
+
+v = calculate_node_colors(bmp, fv)
+
+mapper_plot(bmp, v)
 
 
+import NetworkLayout
+pos = NetworkLayout.spring(bmp.adj_matrix, dim = 3)
+pos = NetworkLayout.stress(bmp.adj_matrix, dim = 3)
 
 
-dists = pairwise(Euclidean(), X, dims = 2)
+f = Figure();
+ax = Axis3(f[1, 1])    
 
-hc = hclust(dists, branchorder=:optimal)
-plot(hc, xticks=false)
+scatter!(ax, pos, label = rand(["a", "b"], 77))
 
-cutree(hc, h = 1)
-plot(cutree)
+el1, el2 = (
+    [MarkerElement(color = cm[1], marker = :square)]
+    ,[MarkerElement(color = cm[end], marker = :square)]
+    )
+Legend(f[1, 2], [el1, el2], ["label 1", "label 2"])
+f
 
-bin_vector(dists, num_bins = 10) |> println
+cm = Makie.to_colormap(:viridis); 
+startcolor = first(cm); endcolor = last(cm)
 
-
-function cluster_empty_bin(X::PointCloud; n_bins::Integer = 10, minimum_points_per_bin::Integer = 1)
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-pos = NetworkLayout.spring(mp.adj_matrix)
-x = pos .|> first
-y = pos .|> last
-
-xs = Float64[];
-ys = Float64[];
-
-adj = mp.adj_matrix
+adj = bmp.adj_matrix
 for i ∈ 1:size(adj)[1]
     for j ∈ i:size(adj)[1]
         if adj[i, j] == 1
-            push!(xs, x[i], x[j])
-            push!(ys, y[i], y[j])
+            linesegments!(ax, [pos[i], pos[j]])
         end
     end
 end
 
-v = rand(27)
+f
+
+scatter(pos)
+
+if isnothing(node_size)
+    node_size = 
+        map(mp.points_in_node) do p
+            length(p)
+        end |>
+        node_scale_function
+end
+
+if isnothing(values)
+    values = zeros(x)
+end
 
 f = Figure();
-ax = Axis(f[1, 1])
+ax = Axis(f[1, 1])    
+linesegments!(ax, xs, ys)    
+scatter!(ax, x, y, markersize = node_size, color = values)
 
-linesegments!(xs, ys; linewidth = rand(1:10, 27))
-scatter!(x, y, markersize = 25, color = v, colormap = :inferno)
-Colorbar(f[1, 2], colormap = :inferno, limits = (minimum(v), maximum(v)))
 hidedecorations!(ax); hidespines!(ax)
 ax.aspect = DataAspect()
+Colorbar(f[1, 2])
+return(f)
 
-f
+using TDAmapper
+mean
 
-
-
-
-
-
-
-
-
-
-using CairoMakie
-
-
-f = Figure();
-Axis(f[1, 1], limits = (0, 1, 0, 1))
-
-rs_h = IntervalSlider(f[2, 1], range = LinRange(0, 1, 1000),
-    startvalues = (0.2, 0.8))
-rs_v = IntervalSlider(f[1, 2], range = LinRange(0, 1, 1000),
-    startvalues = (0.4, 0.9), horizontal = false)
-
-labeltext1 = lift(rs_h.interval) do int
-    string(round.(int, digits = 2))
-end
-Label(f[3, 1], labeltext1, tellwidth = false)
-labeltext2 = lift(rs_v.interval) do int
-    string(round.(int, digits = 2))
-end
-Label(f[1, 3], labeltext2,
-    tellheight = false, rotation = pi/2)
-
-points = rand(Point2f, 300)
-
-# color points differently if they are within the two intervals
-colors = lift(rs_h.interval, rs_v.interval) do h_int, v_int
-    map(points) do p
-        (h_int[1] < p[1] < h_int[2]) && (v_int[1] < p[2] < v_int[2])
-    end
-end
-
-scatter!(points, color = colors, colormap = [:black, :orange], strokewidth = 0)
-
-f

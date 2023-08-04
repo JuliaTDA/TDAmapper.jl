@@ -189,9 +189,9 @@ function _mapper_plot(
     return(f)
 end
 
-function calculate_node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}} , f::Function)
+function calculate_node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}}; f::Function = maximum)
     v = map(mp.points_in_node) do id
-        X[:, id] |> f
+        mp.X[:, id] |> f
     end
 
     return v
