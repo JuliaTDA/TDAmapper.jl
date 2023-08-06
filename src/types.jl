@@ -59,13 +59,9 @@ end
 
 # classic mapper
 @kwdef struct BallMapper <: AbstractMapper
-    X::PointCloud
+    CX::CoveredPointCloud
     L::Vector{<:Integer}
-    clustering::Function
-    points_in_node
-    node_origin
-    adj_matrix
-    mapper_graph::Graph
+    graph::Graph
 end
 
 function Base.show(io::IO, mp::AbstractMapper)

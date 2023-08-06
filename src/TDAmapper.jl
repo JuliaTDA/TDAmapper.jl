@@ -13,7 +13,11 @@ using DataFrames; using NearestNeighbors;
 using Graphs
 using Pipe: @pipe
 using StatsBase
-export mean;
+
+export mean,
+    @pipe,
+    DataFrame,
+    groupby;
 
 import Base.Threads.@threads
 

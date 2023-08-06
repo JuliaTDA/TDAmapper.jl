@@ -30,176 +30,112 @@ function rescale(; min = 0, max = 1)
     x -> rescale(x; min = min, max = max)
 end
 
-# function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
-
-#     colors = map(mp.clustered_pb_ids) do pb
-#         values[pb] |> maximum
-#     end |> colorscale
-    
-#     node_sizes = rescale(map(length, mp.clustered_pb_ids), min = 10, max = 80)
-    
-#     g = mp.mapper_graph
-    
-#     f, ax, p = graphplot(
-#         g, node_color = colors, node_size = node_sizes
-#         ,layout = NetworkLayout.Spring(dim = dim)
-#         # , nlabels = string.(mp.node_origin)
-#         );
-#     hidedecorations!(ax); hidespines!(ax)
-#     ax.aspect = DataAspect()
-
-#     return f, ax, p     
-# end
-
-# !! https://beautiful.makie.org/dev/examples/generated/2d/linesegments/RRGraph/
-# https://docs.makie.org/stable/examples/plotting_functions/linesegments/
-
 """
     mapper_plot
 """
 function mapper_plot(
-    mp::AbstractMapper, values::Vector{<:AbstractString}
-    ;node_size = nothing
-    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
+    mp::AbstractMapper
+    ;node_positions = nothing
+    ,node_size = nothing
+    ,node_values = nothing
+    ,edge_size = nothing
     )
-    pos = NetworkLayout.spring(mp.adj_matrix)
-    x = pos .|> first
-    y = pos .|> last
-    
-    xs = Float64[];
-    ys = Float64[];
-    
-    adj = mp.adj_matrix
-    for i ∈ 1:size(adj)[1]
-        for j ∈ i:size(adj)[1]
-            if adj[i, j] == 1
-                push!(xs, x[i], x[j])
-                push!(ys, y[i], y[j])
-            end
+
+    if isnothing(node_positions)
+        node_positions = NetworkLayout.spring(mp.graph)
+    end
+
+    dim = node_positions[1] |> length
+
+    if isnothing(node_size)
+        node_size = @pipe map(length, mp.CX.covering) |> rescale(min = 10, max = 75)
+    end
+
+    if isnothing(node_values)
+        node_values = map(mp.CX.covering) do id
+            mp.CX.X[1, id] |> mean
         end
+    end
+
+    if isnothing(edge_size)
+        edge_size = 1
+    end
+
+    # start figure
+    f = Figure();
+    if dim == 2
+        ax = Axis(f[1, 1])
+    else
+        ax = Axis3(f[1, 1])
     end    
-    
-    dfs = @pipe DataFrame(x = x, y = y, class = values, row = 1:length(x)) |> 
+
+    # plot edges
+    for e ∈ edges(mp.graph)
+        e.src >= e.dst && continue
+        linesegments!(ax, [node_positions[e.src], node_positions[e.dst]], color = :black, linewidth = edge_size)
+    end
+
+    # if node_values is a string, plot and add the legend
+    if node_values isa Vector{<:AbstractString}
+
+        # gambiarra!!
+        dfs = @pipe DataFrame(
+            pos = node_positions, class = node_values, row = 1:length(node_positions)
+            ,node_size = node_size
+            ) |> 
         groupby(_, :class) |> 
         collect
 
-    f = Figure();
-    ax = Axis(f[1, 1])
-
-    linesegments!(ax, xs, ys)
-
-    if isnothing(node_size)
-        node_size = 
-            map(mp.points_in_node) do p
-                length(p)
-            end |>
-            node_scale_function
-    end
-
-    for df ∈ dfs
-        scatter!(ax, df.x, df.y, markersize = node_size[df.row], label = df.class[1])
-    end
-
-    Legend(f[1, 2], ax, merge = true)
-
-    hidedecorations!(ax); hidespines!(ax)
-    ax.aspect = DataAspect()
-    
-    return(f)    
-end
-
-function mapper_plot(
-    mp::AbstractMapper, values::Union{Vector{<:Number}, Nothing} = nothing
-    ;node_size = nothing
-    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
-    )
-    pos = NetworkLayout.spring(mp.adj_matrix)
-    x = pos .|> first
-    y = pos .|> last
-    
-    xs = Float64[];
-    ys = Float64[];
-    
-    adj = mp.adj_matrix
-    for i ∈ 1:size(adj)[1]
-        for j ∈ i:size(adj)[1]
-            if adj[i, j] == 1
-                push!(xs, x[i], x[j])
-                push!(ys, y[i], y[j])
+        if dim == 2
+            for df ∈ dfs
+                scatter!(ax, df.pos .|> first, df.pos .|> last, markersize = df.node_size, label = df.class[1])
             end
-        end
-    end
+        else 
+            for df ∈ dfs
+                scatter!(ax, df.pos .|> first, df.pos .|> (x -> x[2]), df.pos .|> last, markersize = df.node_size, label = df.class[1])
+            end
+        end        
 
-    if isnothing(node_size)
-        node_size = 
-            map(mp.points_in_node) do p
-                length(p)
-            end |>
-            node_scale_function
-    end
-
-    if isnothing(values)
-        values = zeros(length(x))
-    end
-    
-    f = Figure();
-    ax = Axis(f[1, 1])    
-    linesegments!(ax, xs, ys)    
-    scatter!(ax, x, y, markersize = node_size, color = values)
-
-    hidedecorations!(ax); hidespines!(ax)
-    ax.aspect = DataAspect()
-    if !(minimum(values) ≈ maximum(values))
+        Legend(f[1, 2], ax, merge = true)
+    else # else, plot the usual values
+        scatter!(ax, node_positions, markersize = node_size, color = node_values)
         Colorbar(f[1, 2])
     end
-    
-    return(f)
-end
-
-function _mapper_plot(
-    mp::Mapper
-    ;node_size = nothing
-    ,node_scale_function = x -> rescale(x, min = 10, max = 75)
-    )
-    pos = NetworkLayout.spring(mp.adj_matrix)
-    x = pos .|> first
-    y = pos .|> last
-    
-    xs = Float64[];
-    ys = Float64[];
-    
-    adj = mp.adj_matrix
-    for i ∈ 1:size(adj)[1]
-        for j ∈ i:size(adj)[1]
-            if adj[i, j] == 1
-                push!(xs, x[i], x[j])
-                push!(ys, y[i], y[j])
-            end
-        end
-    end
-
-    if isnothing(node_size)
-        node_size = 
-            @pipe mp.points_in_node |>
-            map(length, _) |>
-            node_scale_function
-    end
-    
-    f = Figure();
-    ax = Axis(f[1, 1])
-    linesegments!(ax, xs, ys)
-    scatter!(ax, x, y, markersize = 25, color = values)
 
     hidedecorations!(ax); hidespines!(ax)
-    ax.aspect = DataAspect()
-    Colorbar(f[1, 2])
-    return(f)
+    
+    # ax.aspect = DataAspect()
+    f
 end
 
-function node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}}; f::Function = maximum)
-    v = map(mp.points_in_node) do id
-        mp.X[:, id] |> f
+function node_colors(mp::AbstractMapper, v::Union{Nothing, Vector{<:Number}} = nothing ; f::Function = mean)
+    if isnothing(v) 
+        v = mp.CX.X[1, :]
     end
+
+    v2 = map(mp.CX.covering) do id
+        v[id] |> f
+    end
+
+    return v2
+end
+
+function node_colors(mp::AbstractMapper, v::Vector{<:AbstractString}; f::Function = string_count)
+    v2 = map(mp.CX.covering) do id
+        v[id] |> f
+    end
+
+    return v2
+end
+
+function string_count(s; max_ties = 3)
+    counting = Dict(i => length(filter(x -> x == i, s)) for i ∈ unique(s))
+    n_max = maximum(counting)[2]
+    uniques = findall(c -> values(c) == n_max, counting)
+
+    v = @pipe uniques[1:clamp(length(uniques), 1, max_ties)] |>
+        sort |>
+        join(_, "/")
 
     return v
 end
