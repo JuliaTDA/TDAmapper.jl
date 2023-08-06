@@ -63,3 +63,29 @@ function split_pre_image(
 
     return clustered_pb_ids, node_origin
 end
+
+function split_covering(
+    CX::CoveredPointCloud; clustering = cluster_dbscan
+    )
+    first_covering = CX.covering
+
+    final_covering = []
+    
+    ids = first_covering[1]
+    
+    vv = map(first_covering) do ids
+        # store the pullback
+       pb = CX.X[:, ids]
+    
+       # store the cluster of each point
+       cl = clustering(pb)
+        
+       # split the pre image according to the clustering algorithm
+       map(unique_sort(cl)) do ucls
+           ids[findall(==(ucls), cl)]
+       end
+    
+    end
+    
+    return mapreduce(vcat, vcat,  vv)
+end

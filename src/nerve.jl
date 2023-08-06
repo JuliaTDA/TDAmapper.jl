@@ -1,33 +1,30 @@
-function centroid(mp::AbstractMapper)
-    map(bmp.points_in_node) do ids
-        map(mean, eachrow(bmp.X[:, ids]))
-    end
-end
+"""
+Calculate the centroid of each subset of a covered space
+"""
+function centroid(CX::CoveredPointCloud)
+    ctds = map(CX.covering) do ids
+        map(mean, eachrow(CX.X[:, ids]))
+    end |> stack
 
-has_intersection(x, y; kwargs...) = !isdisjoint(x, y)
+    return ctds
+end
 
 """
 Create the adjacent matrix from a covering
 """
-function nerve_1d(X::PointCloud, covering::CoveringIds; predicate = nothing)
-
-    if isnothing(predicate)
-        predicate = has_intersection(x, y, kwargs)
-    end
-
-    n = length(covering)
-    adj_matrix = zeros(Int64, n, n)
-
-    @showprogress "Calculating edges..." for i ∈ eachindex(covering)
-        @threads for j ∈ eachindex(covering)
-
-            i < j && continue
-
-            if predicate(X, covering[i], covering[j])
-                adj_matrix[i, j] = 1            
-                adj_matrix[j, i] = 1
+function nerve_1d(CX::CoveredPointCloud)
+    n = CX.covering |> length
+    g = Graph(n)
+    
+    cv = CX.covering
+    for i ∈ 1:n
+        for j ∈ i:n
+            i == j && continue
+            if !isdisjoint(cv[i], cv[j])
+                add_edge!(g, i, j)
             end
         end
     end
-    return adj_matrix
+
+    return g
 end

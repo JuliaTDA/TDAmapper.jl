@@ -20,10 +20,14 @@ import Base.Threads.@threads
 # mapper
 include("types.jl");
 export PointCloud,
-    CoveringIds,
+    SubsetIndex,
+    Covering,
+    CoveredPointCloud,
+    AbstractMapper,
+    AbstractMapperGraph,
+    MapperGraph,
     Mapper,
     BallMapper,
-    AbstractMapper,
     Interval,
     in,
     intersect;
@@ -38,10 +42,18 @@ include("covering.jl");
 export uniform, spaced;
 
 include("clustering.jl");
-export cluster_dbscan
+export cluster_dbscan,
+    split_covering;
 
 include("pullbacks.jl");
+export pre_image_covering;
+
+using MultivariateStats;
 include("graph.jl");
+export mds_layout;
+
+include("nerve.jl");
+export centroid;
 
 export Graph;
 include("mapper.jl");
@@ -61,7 +73,7 @@ include("plots.jl");
 export rescale, 
     colorscale, 
     mapper_plot, 
-    calculate_node_colors;
+    node_colors;
 
 include("ball_mapper.jl");
 export ball_mapper;

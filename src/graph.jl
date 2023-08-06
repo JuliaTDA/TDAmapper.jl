@@ -1,7 +1,7 @@
 """
 Create the adjacent matrix from a covering
 """
-function adj_matrix_from_covering(covering::CoveringIds)
+function adj_matrix_from_covering(covering::Covering)
     n = length(covering)
     adj_matrix = zeros(Int32, n, n)
 
@@ -36,4 +36,21 @@ function adj_matrix_from_pb(clustered_pb_ids)
     end
 
     return(adj_matrix)    
+end
+
+"""
+
+    mds_layout(CX::CoveredPointCloud, dim::Integer = 2)
+
+Create the MDS layout of a covered space using the centroid of each element of the covering
+"""
+function mds_layout(CX::CoveredPointCloud; dim::Integer = 2)
+    @assert dim ∈ [2, 3] "dim must be 2 or 3!"
+    ctd = centroid(CX)
+    M = fit(MDS, ctd, distances = false, maxoutdim = dim)    
+    md = predict(M)
+    
+    pos = [Point{dim}(x) for x ∈ eachcol(md)]
+
+    return pos
 end

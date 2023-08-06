@@ -26,6 +26,10 @@ function rescale(x; min = 0, max = 1)
     return y
 end
 
+function rescale(; min = 0, max = 1)
+    x -> rescale(x; min = min, max = max)
+end
+
 # function mapper_plot(mp::Mapper; values = mp.filter_values, dim = 2)
 
 #     colors = map(mp.clustered_pb_ids) do pb
@@ -135,7 +139,7 @@ function mapper_plot(
     end
 
     if isnothing(values)
-        values = zeros(x)
+        values = zeros(length(x))
     end
     
     f = Figure();
@@ -145,7 +149,10 @@ function mapper_plot(
 
     hidedecorations!(ax); hidespines!(ax)
     ax.aspect = DataAspect()
-    Colorbar(f[1, 2])
+    if !(minimum(values) ≈ maximum(values))
+        Colorbar(f[1, 2])
+    end
+    
     return(f)
 end
 
@@ -189,7 +196,7 @@ function _mapper_plot(
     return(f)
 end
 
-function calculate_node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}}; f::Function = maximum)
+function node_colors(mp::AbstractMapper, v::Vector{<:Union{Number, AbstractString}}; f::Function = maximum)
     v = map(mp.points_in_node) do id
         mp.X[:, id] |> f
     end

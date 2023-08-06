@@ -20,26 +20,17 @@ function mapper(
     ,covering_intervals::Vector{<:Interval}
     ;clustering = cluster_dbscan
     )
-
+ 
     # calculate the pullback
-    id_pbs = pre_image_id(filter_values, covering_intervals)
+    first_covering = pre_image_covering(filter_values, covering_intervals)
     
     # cluster each pre-image
-    clustered_pb_ids, node_origin = split_pre_image(X, id_pbs, clustering = clustering)
-    
-    # create the mapper graph
-    adj_matrix = adj_matrix_from_pb(clustered_pb_ids)
-    
-    mapper_graph = Graphs.Graph(adj_matrix)
+    covering = split_covering(CoveredPointCloud(X, first_covering), clustering = clustering)
 
-    mapper = Mapper(
-        X = X
-        ,filter_values = filter_values
-        ,covering_intervals = covering_intervals
-        ,clustering = clustering
-        ,points_in_node = clustered_pb_ids
-        ,node_origin = node_origin
-        ,adj_matrix = adj_matrix
-        ,mapper_graph = mapper_graph
-        )
+    CX = CoveredPointCloud(X, covering)
+
+    g = nerve_1d(CX)
+
+    mapper = Mapper(CX = CX, graph = g)
+    return mapper
 end

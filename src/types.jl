@@ -1,9 +1,27 @@
-# metric space
-# abstract type AbstractPointCloud end
-PointCloud = Matrix{<:Real} #<: AbstractPointCloud
+# the indexes of a subset of points
+SubsetIndex = Vector{<:Integer}
 
-# ids of coverings
-CoveringIds = Vector{<:Vector{<:Integer}}
+Covering = Vector{<:SubsetIndex}
+
+PointCloud = Matrix{<:Real}
+
+struct CoveredPointCloud
+    X::PointCloud
+    covering::Covering
+end
+
+abstract type AbstractMapperGraph end
+
+@kwdef struct MapperGraph
+    CX::CoveredPointCloud
+    g::Graph
+end
+
+# mappper and ball mapper covering
+# métodos para criar covering
+# métodos para criar grafo
+
+
 
 # real intervals
 # abstract type AbstractInterval end
@@ -22,11 +40,11 @@ function intersect(i::Interval, j::Interval)
     (i.a <= j.a <= i.b) || (i.a <= j.b <= i.b)
 end
 
-function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: CoveringIds}
+function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: Covering}
     [convert.(Int32, c) for c ∈ x]
 end
 
-function Base.convert(::Type{T}, x::T) where {T <: CoveringIds}
+function Base.convert(::Type{T}, x::T) where {T <: Covering}
     x
 end
 
@@ -35,14 +53,8 @@ abstract type AbstractMapper end
 
 # classic mapper
 @kwdef struct Mapper <: AbstractMapper
-    X::PointCloud
-    filter_values::Vector{<:Number}
-    covering_intervals::Vector{<:Interval}
-    clustering::Function
-    points_in_node
-    node_origin
-    adj_matrix
-    mapper_graph::Graph
+    CX::CoveredPointCloud
+    graph::Graph
 end
 
 # classic mapper
