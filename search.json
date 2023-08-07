@@ -1,44 +1,72 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Introduction",
+    "title": "Installing",
     "section": "",
-    "text": "aaaa\n\nusing TDAmapper\n\n# X = Datasets.circle(1000)\n# fv = excentricity(X)\n# fv = X[:, 1]\n# cv = uniform(fv)\n\n# mp = mapper(X, fv, cv);\n# mp"
+    "text": "In Julia, type\n] add https://github.com/JuliaTDA/TDAmapper.jl https://github.com/JuliaTDA/GeometricDatasets.jl\nThe ] character mark the command to be executed in Julia package mode."
   },
   {
-    "objectID": "index.html#this-is-julia-code",
-    "href": "index.html#this-is-julia-code",
-    "title": "TDAmapper!",
+    "objectID": "index.html#installation",
+    "href": "index.html#installation",
+    "title": "Installing",
     "section": "",
-    "text": "texto texto texto texto\n\n1 + 1\n\n2\n\n\ntexto texto texto texto texto\n\nusing TDAmapper\n\nX = Datasets.circle(1000)\nfv = excentricity(X)\nfv = X[:, 1]\ncv = uniform(fv)\n\nmp = mapper(X, fv, cv);\nmp\n\nMapper graph of X\n\n\ntexto texto texto texto texto texto"
+    "text": "In Julia, type\n] add https://github.com/JuliaTDA/TDAmapper.jl https://github.com/JuliaTDA/GeometricDatasets.jl\nThe ] character mark the command to be executed in Julia package mode."
   },
   {
-    "objectID": "index.html#this-is-payto-code",
-    "href": "index.html#this-is-payto-code",
-    "title": "TDAmapper!",
+    "objectID": "index.html#first-usage",
+    "href": "index.html#first-usage",
+    "title": "Installing",
+    "section": "First usage",
+    "text": "First usage\nLoad the packages\n\nusing TDAmapper;\nimport GeometricDatasets as gd;\n\n[ Info: Precompiling TDAmapper [90314d98-8742-41ec-badb-bb392eb26b11]\n\n\ncreate a torus\n\nX = gd.torus(2000)\n\n3×2000 Matrix{Float64}:\n  2.66974   -2.87141    0.245877   …   2.05339   -2.2791    -1.52055\n  2.65494   -0.526055  -3.99122        0.833284   0.280394  -3.25949\n -0.643867   0.99673   -0.0492676     -0.62079    0.710485   0.802453\n\n\ndefine the filter values\n\nfv = X[1, :];\n\nand the covering\n\nC = uniform(fv, overlap = 150);\n\nCalculate the mapper\n\nmp = mapper(X, fv, C; clustering = cluster_dbscan(;radius = 1))\n\nand plot the results\n\nnode_values = node_colors(mp, fv)\n\nmapper_plot(mp, node_values = node_values)"
+  },
+  {
+    "objectID": "index.html#new-to-julia",
+    "href": "index.html#new-to-julia",
+    "title": "Installing",
+    "section": "New to Julia?",
+    "text": "New to Julia?\nThat was too much Julia for you? No problem! You can learn more with some very nice books like these:\n\nJulia for Optimization and Learning"
+  },
+  {
+    "objectID": "mapper.html",
+    "href": "mapper.html",
+    "title": "The (classical) mapper",
     "section": "",
-    "text": "1+1"
+    "text": "In topology, there are many ways by which we try to see what can’t be seen, in particular high-dimensional sets. The Reeb graph is one of those ways: given a topological space \\(X\\) and a continuous function \\(f: X \\to \\mathbb{R}\\), we can collapse the connected components of its pre-images to get a graph that reflects the level-sets of \\(f\\).\nMore formally, we define a relation \\(\\sim\\) on \\(X\\) such that \\(p \\sim q\\) if-and-only-if \\(p\\) and \\(q\\) belong to the same connected component of \\(f^{-1}(c)\\) for some \\(c \\in \\mathbb{R}\\).\n\n\n\nThe Reeb graph of a torus using the projection on the z-axis.\n\n\n\n\n\nThe (classical) mapper is an algorithm to create graphs from metric spaces, and can be seen as an “statistical” version of the Reeb graph.\nTo be able to mimick the Reeb graph, we need to change some objects from the continuous setting to the discrete setting:\n\n\\(X = (X, d)\\) is now a finite metric space, also called a point cloud;\n\\(f: X \\to \\mathbb{R}\\) can be any function (since \\(X\\) is discrete, \\(f\\) is automatically continuous);\ninstead of inverse images of points of \\(\\mathbb{R}\\), we calculate inverse images of subsets of \\(\\mathbb{R}\\) (usually intervals);\ninstead of connected components (which are trivial in the discrete setting), we use some clustering algorithm (DBSCAN, single linkage, etc.) and consider these clusterings as “connected pieces of \\(X\\)”.\n\n\nThe mapper graph can shed light to the geometry of \\(X\\):\n\nnodes are clusters of points of \\(X\\);\nthe color of the nodes can summarise some information about the points of \\(X\\) that represent this node;\nedges denote some proximity (in the metric of \\(d\\) of \\(X\\)) between the nodes.\n\nTo be more precise, to calculate the mapper of a metric space \\(X\\), we need the following ingredients:\n\na function \\(f: X \\to \\mathbb{R}\\) that measures something interesting in \\(X\\), as, for example, the excentricity, the first coordinate of PCA, and so on;\na covering \\(C\\) of the image \\(f(X) \\subset \\mathbb{R}\\);\na method \\(l\\) to cluster each \\(f^{-1}(c)\\) for \\(c \\in C\\).\n\nWhen all of this is chosen, we have a covering of \\(X\\) by clustering each pre-image of the elements of \\(C\\), that is:\n\\[\nV = \\{ l(p); \\; p = f^{-1}(c) \\; \\text{for} \\; c \\in C\\}\n\\]\nWe then calculate the 1-dimensional nerve of \\(V\\): we define the set of edges \\(E \\subset V \\times V\\) by\n\\[\n(v_1, v_2) \\in E \\leftrightarrow v_1 \\cap v_2 \\neq \\emptyset\n\\]\nIn words, we have an edge between \\(v_1\\) and \\(v_2\\) if there is some point in both \\(v_1\\) and \\(v_2\\) at the same time."
+  },
+  {
+    "objectID": "mapper.html#some-theory",
+    "href": "mapper.html#some-theory",
+    "title": "The (classical) mapper",
+    "section": "",
+    "text": "In topology, there are many ways by which we try to see what can’t be seen, in particular high-dimensional sets. The Reeb graph is one of those ways: given a topological space \\(X\\) and a continuous function \\(f: X \\to \\mathbb{R}\\), we can collapse the connected components of its pre-images to get a graph that reflects the level-sets of \\(f\\).\nMore formally, we define a relation \\(\\sim\\) on \\(X\\) such that \\(p \\sim q\\) if-and-only-if \\(p\\) and \\(q\\) belong to the same connected component of \\(f^{-1}(c)\\) for some \\(c \\in \\mathbb{R}\\).\n\n\n\nThe Reeb graph of a torus using the projection on the z-axis.\n\n\n\n\n\nThe (classical) mapper is an algorithm to create graphs from metric spaces, and can be seen as an “statistical” version of the Reeb graph.\nTo be able to mimick the Reeb graph, we need to change some objects from the continuous setting to the discrete setting:\n\n\\(X = (X, d)\\) is now a finite metric space, also called a point cloud;\n\\(f: X \\to \\mathbb{R}\\) can be any function (since \\(X\\) is discrete, \\(f\\) is automatically continuous);\ninstead of inverse images of points of \\(\\mathbb{R}\\), we calculate inverse images of subsets of \\(\\mathbb{R}\\) (usually intervals);\ninstead of connected components (which are trivial in the discrete setting), we use some clustering algorithm (DBSCAN, single linkage, etc.) and consider these clusterings as “connected pieces of \\(X\\)”.\n\n\nThe mapper graph can shed light to the geometry of \\(X\\):\n\nnodes are clusters of points of \\(X\\);\nthe color of the nodes can summarise some information about the points of \\(X\\) that represent this node;\nedges denote some proximity (in the metric of \\(d\\) of \\(X\\)) between the nodes.\n\nTo be more precise, to calculate the mapper of a metric space \\(X\\), we need the following ingredients:\n\na function \\(f: X \\to \\mathbb{R}\\) that measures something interesting in \\(X\\), as, for example, the excentricity, the first coordinate of PCA, and so on;\na covering \\(C\\) of the image \\(f(X) \\subset \\mathbb{R}\\);\na method \\(l\\) to cluster each \\(f^{-1}(c)\\) for \\(c \\in C\\).\n\nWhen all of this is chosen, we have a covering of \\(X\\) by clustering each pre-image of the elements of \\(C\\), that is:\n\\[\nV = \\{ l(p); \\; p = f^{-1}(c) \\; \\text{for} \\; c \\in C\\}\n\\]\nWe then calculate the 1-dimensional nerve of \\(V\\): we define the set of edges \\(E \\subset V \\times V\\) by\n\\[\n(v_1, v_2) \\in E \\leftrightarrow v_1 \\cap v_2 \\neq \\emptyset\n\\]\nIn words, we have an edge between \\(v_1\\) and \\(v_2\\) if there is some point in both \\(v_1\\) and \\(v_2\\) at the same time."
+  },
+  {
+    "objectID": "mapper.html#less-theory-more-julia",
+    "href": "mapper.html#less-theory-more-julia",
+    "title": "The (classical) mapper",
+    "section": "Less theory, more Julia!",
+    "text": "Less theory, more Julia!\nLet’s import some packages:\n\nusing TDAmapper;\nimport GeometricDatasets as gd;\n\nand define \\(X\\) as a torus with the usual Euclidean distance\n\nX = gd.torus(2000)\n\n3×2000 Matrix{Float64}:\n -0.522073    0.720121  -3.77101   …  -2.34387   1.56273   -3.78366\n  1.93461     2.63514   -0.589572      1.04003   1.43276    0.669785\n -0.0872922  -0.963353  -0.576886      0.900067  0.475205   0.538721\n\n\nImportant: when using TDAmapper, your point cloud must be in column-major order. That is: each point of \\(X\\) must be a column of X, not a row (as is usual with dataframes). This is so because Distances.jl, NearestNeighbors.jl, Clustering.jl and many other packages for calculations with metric spaces use the column-major order for performance reasons.\nWe define the function \\(f: X \\to \\mathbb{R}\\) as the projection on the \\(x\\)-axis because our torus is laying down compared to the one in the Reeb graph example.\nLet fv be a vector such that fv[i] is the \\(x\\)-axis projection of the point \\(x_i\\) of \\(X\\):\n\nfv = X[1, :];\n\nYou can plot \\(X\\) colored by \\(f\\) as follows:\n\nusing CairoMakie;\nscatter(X[1, :], X[2, :], X[3, :], color = fv)\n\n\n\n\nImportant: the plots will be interactive when running in Julia if you change CairoMakie to GLMakie. Give it a try!\nDefine the covering intervals cv as follows:\n\nC = uniform(fv, overlap = 150);\n\nYou can check the first five intervals of this covering:\n\nC[1:5]\n\n5-element Vector{Interval}:\n Interval(-4.7092185f0, -3.7099314f0)\n Interval(-4.1381974f0, -3.1389103f0)\n Interval(-3.567176f0, -2.5678892f0)\n Interval(-2.996155f0, -1.9968679f0)\n Interval(-2.425134f0, -1.4258468f0)\n\n\nFor the clustering algorithm we choose the DBSCAN with radius 1:\n\nclustering = cluster_dbscan(radius = 1);\n\nThen the mapper graph of \\(X\\) can be calculated by\n\n# the mapper function needs:\n# X\n# the values of f(X)\n# the covering C\n# the clustering function\nmp = mapper(X, fv, C; clustering = clustering)\n\nAnd plotted with\n\n# define the value of each node as the maximum of\n# values of fv \nnode_values = node_colors(mp, fv)\n\nmapper_plot(mp, node_values = node_values)\n\n\n\n\nCompare it with the Reeb graph from the start. If this isn’t nice, what is?"
   },
   {
     "objectID": "sampling.html",
     "href": "sampling.html",
     "title": "Sampling data",
     "section": "",
-    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 72      Time: 0:00:00"
+    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 78      Time: 0:00:00"
   },
   {
     "objectID": "sampling.html#ϵ-net",
     "href": "sampling.html#ϵ-net",
     "title": "Sampling data",
     "section": "",
-    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 72      Time: 0:00:00"
+    "text": "An ϵ-net is a subset of a point cloud X such that \\[\n\\forall x \\in X, \\exists y \\in Y | d(x, y) &lt;= \\epsilon\n\\]\nthat is: every point \\(x\\) of \\(X\\) is in an ϵ-neighborhood of some point of \\(Y\\).\n\n\n\nusing TDAmapper\nusing Plots\n\nX = rand(2, 10^4)\nϵ = 0.1\nids = epsilon_net(X, ϵ)\nY = X[:, ids]\nscatter(X[1, :], X[2, :])\nscatter!(Y[1, :], Y[2, :], color = :red)\n\nSearching neighborhood of point number 2     Time: 0:00:00Searching neighborhood of point number 78      Time: 0:00:00"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
   }
 ]
