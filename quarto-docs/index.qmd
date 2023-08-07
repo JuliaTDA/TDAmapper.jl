@@ -1,0 +1,61 @@
+---
+title: "Installing"
+---
+
+## Installation
+
+In Julia, type 
+
+```
+] add https://github.com/JuliaTDA/TDAmapper.jl https://github.com/JuliaTDA/GeometricDatasets.jl
+```
+
+The `]` character mark the command to be executed in Julia package mode.
+
+## First usage
+
+Load the packages
+
+```{julia}
+using TDAmapper;
+import GeometricDatasets as gd;
+```
+
+create a torus
+
+```{julia}
+X = gd.torus(2000)
+```
+
+define the filter values
+
+```{julia}
+fv = X[1, :];
+```
+
+and the covering
+
+```{julia}
+C = uniform(fv, overlap = 150);
+```
+
+Calculate the mapper
+
+```{julia}
+#| output: false
+mp = mapper(X, fv, C; clustering = cluster_dbscan(;radius = 1))
+```
+
+and plot the results
+
+```{julia}
+node_values = node_colors(mp, fv)
+
+mapper_plot(mp, node_values = node_values)
+```
+
+## New to Julia?
+
+That was too much Julia for you? No problem! You can learn more with some very nice books like these:
+
+- [Julia for Optimization and Learning](https://juliateachingctu.github.io/Julia-for-Optimization-and-Learning/stable/)

@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: ../docs
+
+jupyter: julia-1.9
+
+website:
+  title: "TDAmapper"
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - index.qmd
+
+      - section: "The algorithms"
+        contents:
+          - mapper.qmd
+
+format:
+  html:
+    theme: cosmos
+    css: styles.css
+    toc: true
+
+
+

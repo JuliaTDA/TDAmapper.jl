@@ -1,15 +1,4 @@
 """
-Calculate the centroid of each subset of a covered space
-"""
-function centroid(CX::CoveredPointCloud)
-    ctds = map(CX.covering) do ids
-        map(mean, eachrow(CX.X[:, ids]))
-    end |> stack
-
-    return ctds
-end
-
-"""
 Create the adjacent matrix from a covering
 """
 function nerve_1d(CX::CoveredPointCloud)
