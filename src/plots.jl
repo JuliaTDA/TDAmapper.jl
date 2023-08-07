@@ -99,7 +99,7 @@ function mapper_plot(
         Legend(f[1, 2], ax, merge = true)
     else # else, plot the usual values
         scatter!(ax, node_positions, markersize = node_size, color = node_values)
-        Colorbar(f[1, 2])
+        Colorbar(f[1, 2], colorrange = extrema(node_values))
     end
 
     hidedecorations!(ax); hidespines!(ax)

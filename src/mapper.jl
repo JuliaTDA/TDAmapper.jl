@@ -29,8 +29,8 @@ function mapper(
 
     CX = CoveredPointCloud(X, covering)
 
-    g = nerve_1d(CX)
+    graph = nerve_1d(CX)
 
-    mapper = Mapper(CX = CX, graph = g)
+    mapper = Mapper(CX = CX, graph = graph)
     return mapper
 end

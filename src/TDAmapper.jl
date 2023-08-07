@@ -36,9 +36,6 @@ export PointCloud,
     in,
     intersect;
 
-# not needed anymore; using NearestNeighbors.jl
-# include("neighborhoods.jl");
-
 include("filter.jl");
 export excentricity;
 
@@ -52,17 +49,24 @@ export cluster_dbscan,
 include("pullbacks.jl");
 export pre_image_covering;
 
-using MultivariateStats;
-include("graph.jl");
-export mds_layout;
+using MultivariateStats, ManifoldLearning;
+include("layouts.jl");
+export layout_generic,
+    layout_mds,
+    layout_hlle,
+    layout_isomap,
+    layout_lem,
+    layout_lle,
+    layout_ltsa,
+    layout_tsne,
+    layout_diffmap;
 
 include("nerve.jl");
 export centroid;
 
 export Graph;
 include("mapper.jl");
-export mapper,
-    adj_matrix_from_covering;
+export mapper;
 
 include("utils.jl");
 export unique_sort,

@@ -19,7 +19,6 @@ L = rand(1:size(X)[2], 200) |> unique
 mp = ball_mapper(X, L, ϵ = 0.8)
 mp.graph
 
-node_values = rand(["a", "b", "a/b"], nv(mp.graph))
 node_values = node_colors(mp, X[1, :])
 node_values = node_colors(mp, rand(["a", "b", "c"], size(X)[2]))
 
@@ -44,3 +43,15 @@ mapper_plot(mp, node_values = node_values, node_positions = node_positions)
 node_positions = spectral(mp.graph, dim = 3)
 mapper_plot(mp, node_values = node_values, node_positions = node_positions)
 
+gg(X; maxoutdim = 3)
+
+using MultivariateStats
+layout_mds(mp.CX, dim = 3)
+
+node_positions = layout_mds(mp.CX, dim = 3)
+node_values = node_colors(mp, X[1, :]) .+ 50
+mapper_plot(mp, node_values = node_values, node_positions = node_positions)
+scatter(X[1:3, :])
+
+using ManifoldLearning
+@doc ManifoldLearning.fit
