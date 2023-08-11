@@ -72,8 +72,8 @@ include("utils.jl");
 export unique_sort,
     transpose_matrix;
 
-include("sampling.jl");
-export epsilon_net;
+# include("sampling.jl");
+# export epsilon_net;
 
 using Colors; using ColorSchemes;
 using GLMakie; import NetworkLayout

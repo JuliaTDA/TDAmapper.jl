@@ -1,10 +1,10 @@
 """
-mapper(
-    X::PointCloud
-    ,filter_values::Vector{<:Real}
-    ,covering_intervals::Vector{<:Interval}
-    ;clustering = cluster_dbscan
-    )
+    mapper(
+        X::PointCloud,
+        filter_values::Vector{<:Real},
+        covering_intervals::Vector{<:Interval};
+        clustering = cluster_dbscan
+        )
 
 Create the mapper graph of a given pointcloud `X`,
 with a vector of `filter_values`, using the
