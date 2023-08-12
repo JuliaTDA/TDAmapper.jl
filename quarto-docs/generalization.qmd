@@ -13,3 +13,16 @@ Here's how we can generalize the mapper algorithm:
 
 1) Create the covering in some different ways
 1) Choose a graph-from-covering algorithm different from the traditional nerve complex.
+
+
+```{julia}
+#| echo: false
+using TDAmapper
+@qdoc mapper
+```
+
+```{julia}
+#| echo: false
+using TDAmapper
+@qdoc ball_mapper
+```

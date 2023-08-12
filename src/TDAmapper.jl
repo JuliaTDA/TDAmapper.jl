@@ -86,4 +86,7 @@ export rescale,
 include("ball_mapper.jl");
 export ball_mapper;
 
+using Markdown;
+include("quarto_aux.jl");
+
 end # module
