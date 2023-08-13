@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>TDAmapper - Installing</title>
+<title>TDAmapper – generalization</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -94,6 +60,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -107,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Installing</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./mapper.html">The algorithms</a></li><li class="breadcrumb-item"><a href="./generalization.html">Generalization</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -134,7 +102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Installing</span></a>
   </div>
 </li>
@@ -161,7 +129,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./generalization.html" class="sidebar-item-text sidebar-link">
+  <a href="./generalization.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Generalization</span></a>
   </div>
 </li>
@@ -177,9 +145,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#installation" id="toc-installation" class="nav-link active" data-scroll-target="#installation">Installation</a></li>
-  <li><a href="#first-usage" id="toc-first-usage" class="nav-link" data-scroll-target="#first-usage">First usage</a></li>
-  <li><a href="#new-to-julia" id="toc-new-to-julia" class="nav-link" data-scroll-target="#new-to-julia">New to Julia?</a></li>
+  <li><a href="#what-is-a-mapper-algorithm" id="toc-what-is-a-mapper-algorithm" class="nav-link active" data-scroll-target="#what-is-a-mapper-algorithm">What is a mapper algorithm?</a>
+  <ul class="collapse">
+  <li><a href="#covering-step" id="toc-covering-step" class="nav-link" data-scroll-target="#covering-step">Covering step</a></li>
+  <li><a href="#graph-step" id="toc-graph-step" class="nav-link" data-scroll-target="#graph-step">Graph step</a></li>
+  <li><a href="#creating-my-own-mapper" id="toc-creating-my-own-mapper" class="nav-link" data-scroll-target="#creating-my-own-mapper">Creating my own mapper</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -188,7 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Installing</h1>
+<h1 class="title">Generalization</h1>
 </div>
 
 
@@ -203,62 +174,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<section id="installation" class="level2">
-<h2 class="anchored" data-anchor-id="installation">Installation</h2>
-<p>In Julia, type</p>
-<pre><code>] add https://github.com/JuliaTDA/TDAmapper.jl https://github.com/JuliaTDA/GeometricDatasets.jl</code></pre>
-<p>The <code>]</code> character mark the command to be executed in Julia package mode.</p>
-</section>
-<section id="first-usage" class="level2">
-<h2 class="anchored" data-anchor-id="first-usage">First usage</h2>
-<p>Load the packages</p>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">TDAmapper;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">GeometricDatasets </span>as gd;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>[ Info: Precompiling TDAmapper [90314d98-8742-41ec-badb-bb392eb26b11]</code></pre>
-</div>
-</div>
-<p>create a torus</p>
-<div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> gd.<span class="fu">torus</span>(<span class="fl">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>3×2000 Matrix{Float64}:
-  2.66974   -2.87141    0.245877   …   2.05339   -2.2791    -1.52055
-  2.65494   -0.526055  -3.99122        0.833284   0.280394  -3.25949
- -0.643867   0.99673   -0.0492676     -0.62079    0.710485   0.802453</code></pre>
-</div>
-</div>
-<p>define the filter values</p>
-<div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fv <span class="op">=</span> X[<span class="fl">1</span>, <span class="op">:</span>];</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>and the covering</p>
-<div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> <span class="fu">uniform</span>(fv, overlap <span class="op">=</span> <span class="fl">150</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Calculate the mapper</p>
-<div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> <span class="fu">mapper</span>(X, fv, C; clustering <span class="op">=</span> <span class="fu">cluster_dbscan</span>(;radius <span class="op">=</span> <span class="fl">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>and plot the results</p>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>node_values <span class="op">=</span> <span class="fu">node_colors</span>(mp, fv)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mapper_plot</span>(mp, node_values <span class="op">=</span> node_values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
-<p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
-</div>
-</div>
-</section>
-<section id="new-to-julia" class="level2">
-<h2 class="anchored" data-anchor-id="new-to-julia">New to Julia?</h2>
-<p>That was too much Julia for you? No problem! You can learn more with some very nice books like these:</p>
+<section id="what-is-a-mapper-algorithm" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-mapper-algorithm">What is a mapper algorithm?</h2>
+<p>We can boil down the two mapper algorithms we saw earlier as follows:</p>
+<ol type="1">
+<li>(covering step) Given a metric space <span class="math inline">\((X, d)\)</span>, create a covering <span class="math inline">\(C\)</span> of <span class="math inline">\(X\)</span>;</li>
+<li>(graph step) Using <span class="math inline">\(C\)</span> as vertex set, create a graph.</li>
+</ol>
+<p>In the classical mapper context, <span class="math inline">\(C\)</span> is generated using the clustering of pre-images of a function <span class="math inline">\(f: X \to \mathbb{R}\)</span>. In the ball mapper scenario, we cover <span class="math inline">\(X\)</span> using <span class="math inline">\(\epsilon\)</span>-balls with centers as a subset of <span class="math inline">\(X\)</span>.</p>
+<section id="covering-step" class="level3">
+<h3 class="anchored" data-anchor-id="covering-step">Covering step</h3>
+<p>Let <span class="math inline">\(X\)</span>, <span class="math inline">\(L\)</span> and <span class="math inline">\(\epsilon\)</span> be given as in the ball mapper case. For any <span class="math inline">\(l \in L\)</span>, define <span class="math inline">\(x_l\)</span> = <code>X[:, l]</code>. Examples of how to generalize the covering step:</p>
 <ul>
-<li><a href="https://juliateachingctu.github.io/Julia-for-Optimization-and-Learning/stable/">Julia for Optimization and Learning</a></li>
+<li><p>Fix <span class="math inline">\(n &gt; 0\)</span> integer. Create a ball <span class="math inline">\(B\)</span> of radius <span class="math inline">\(\epsilon\)</span> around <span class="math inline">\(x_l\)</span>. If <span class="math inline">\(B\)</span> contains less than <span class="math inline">\(n\)</span> elements, then we redefine <span class="math inline">\(B\)</span> as the set of <span class="math inline">\(n\)</span> nearest neighbors of <span class="math inline">\(x_l\)</span>.</p></li>
+<li><p>Fix <span class="math inline">\(\lambda &gt; 0\)</span>. Let <span class="math inline">\(d_1\)</span> be the distance between <span class="math inline">\(x_l\)</span> and its closest point. Create a ball <span class="math inline">\(B\)</span> of radius <span class="math inline">\(\lambda * d_1\)</span>. Proceed like this to create a covering of <span class="math inline">\(X\)</span>.</p></li>
 </ul>
+</section>
+<section id="graph-step" class="level3">
+<h3 class="anchored" data-anchor-id="graph-step">Graph step</h3>
+<p>There are many alternatives to the nerve construction. Let <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> be two elements of a covering <span class="math inline">\(C\)</span>. Let <span class="math inline">\(G = (V, E)\)</span> be a graph with vertex-set <span class="math inline">\(V = C\)</span>. Examples of how to generalize the graph step:</p>
+<ul>
+<li>Fix <span class="math inline">\(k &gt; 0\)</span>. Define <span class="math inline">\((a, b) \in E\)</span> iff <span class="math inline">\(|a \cap b| \geq k\)</span>, that is: we will only allow intersections with at least <span class="math inline">\(k\)</span> elements.</li>
+</ul>
+</section>
+<section id="creating-my-own-mapper" class="level3">
+<h3 class="anchored" data-anchor-id="creating-my-own-mapper">Creating my own mapper</h3>
+<p>You can change the 2 steps above within the context of the ball mapper, as can be seen in the docs.</p>
+<div class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+doc
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<pre><code>ball_mapper(
+    X::PointCloud, L::Vector{&lt;:Integer}, 
+    covering_function::Function,
+    graph_function::Function
+    )</code></pre>
+<p>Creates the ball mapper of a metric space <code>X</code> subsampled by <code>L</code>.</p>
+<section id="arguments" class="level3">
+<h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
+<ul>
+<li><code>X::PointCloud</code>: a point cloud.</li>
+<li><code>L::Vector{&lt;:Integer}</code>: a subset of index of <code>X</code>, that is: L is a subset of [1:size(X)[2]].</li>
+<li><code>covering_function::Function</code>: a function that creates a cover for <code>X</code>. Its arguments are <code>X</code> and <code>L</code>.</li>
+<li><code>graph_function::Function</code>: a function that creates a graph. It accepts a <code>CoveredPointCloud</code> object.</li>
+</ul>
+</section>
+<section id="details" class="level3">
+<h3 class="anchored" data-anchor-id="details">Details</h3>
+<p>See the “Generalization” page of the online documentation.</p>
+<pre><code>ball_mapper(
+    X::PointCloud, L::Vector{&lt;:Integer}; 
+    ϵ::Number = 1
+    )</code></pre>
+<p>Creates the ball mapper of a metric space <code>X</code> subsampled by <code>L</code>.</p>
+</section>
+<section id="arguments-1" class="level3">
+<h3 class="anchored" data-anchor-id="arguments-1">Arguments</h3>
+<ul>
+<li><code>X::PointCloud</code>: a point cloud.</li>
+<li><code>L::Vector{&lt;:Integer}</code>: a subset of index of <code>X</code>, that is: L is a subset of [1:size(X)[2]].</li>
+<li><code>ϵ::Number</code>: the radius of the balls around the points <code>X[:, l]</code> for <code>l</code> ∈ <code>L</code>.</li>
+</ul>
+</section>
+<section id="details-1" class="level3">
+<h3 class="anchored" data-anchor-id="details-1">Details</h3>
+<p>For each index <code>i</code> of <code>L</code>, we define <code>c_i</code> as the ball of radius <code>ϵ</code> around <code>X[:, i]</code>. We then define the covering <code>C = {c_i, i ∈ L}.</code></p>
+<p>After that, we define the ball mapper as the graph given by the 1-skeleton of <code>C</code>.</p>
+</section>
+</div>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

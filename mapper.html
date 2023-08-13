@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>TDAmapper - The (classical) mapper</title>
+<title>TDAmapper - (Classical) mapper</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -109,7 +109,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./mapper.html">The algorithms</a></li><li class="breadcrumb-item"><a href="./mapper.html">The (classical) mapper</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./mapper.html">The algorithms</a></li><li class="breadcrumb-item"><a href="./mapper.html">(Classical) mapper</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -152,7 +152,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./mapper.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">The (classical) mapper</span></a>
+ <span class="menu-text">(Classical) mapper</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ballmapper.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Ball mapper</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./generalization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Generalization</span></a>
   </div>
 </li>
       </ul>
@@ -181,7 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">The (classical) mapper</h1>
+<h1 class="title">(Classical) mapper</h1>
 </div>
 
 
@@ -255,9 +267,9 @@ V = \{ l(p); \; p = f^{-1}(c) \; \text{for} \; c \in C\}
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> gd.<span class="fu">torus</span>(<span class="fl">2000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>3×2000 Matrix{Float64}:
- -2.83916    3.27182    2.92933   …  -2.96572    2.88682   -2.23586
- -2.64764   -1.36194   -1.92588       0.469621   0.211599   1.77717
- -0.471029   0.839104  -0.862706     -0.999996  -0.994426  -0.989595</code></pre>
+  2.18226    3.54087   -0.879014   …   1.97537    0.852017  -2.4232
+  2.84043    0.221704   3.90208       -1.62571   -3.88278    0.85393
+ -0.813234  -0.836608  -0.0164606     -0.897172  -0.221497   0.902476</code></pre>
 </div>
 </div>
 <p><strong>Important</strong>: when using TDAmapper, your point cloud must be in column-major order. That is: each point of <span class="math inline">\(X\)</span> must be a column of <code>X</code>, not a row (as is usual with dataframes). This is so because <a href="https://github.com/JuliaStats/Distances.jl">Distances.jl</a>, <a href="https://github.com/KristofferC/NearestNeighbors.jl">NearestNeighbors.jl</a>, <a href="https://github.com/JuliaStats/Clustering.jl">Clustering.jl</a> and many other packages for calculations with metric spaces use the column-major order for performance reasons.</p>
@@ -284,11 +296,11 @@ V = \{ l(p); \; p = f^{-1}(c) \; \text{for} \; c \in C\}
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>C[<span class="fl">1</span><span class="op">:</span><span class="fl">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>5-element Vector{Interval}:
- Interval(-4.7077045f0, -3.7088177f0)
- Interval(-4.1369123f0, -3.1380253f0)
- Interval(-3.5661197f0, -2.5672326f0)
- Interval(-2.995327f0, -1.9964402f0)
- Interval(-2.4245346f0, -1.4256476f0)</code></pre>
+ Interval(-4.6948256f0, -3.6977174f0)
+ Interval(-4.1250496f0, -3.1279411f0)
+ Interval(-3.5552733f0, -2.5581648f0)
+ Interval(-2.985497f0, -1.9883885f0)
+ Interval(-2.4157207f0, -1.4186124f0)</code></pre>
 </div>
 </div>
 <p>For the clustering algorithm we choose the DBSCAN with radius 1:</p>
