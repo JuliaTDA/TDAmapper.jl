@@ -1,7 +1,7 @@
 function quarto_block(x)
     s = """
 
-    :::{.callout-note appearance="simple"}
+    :::{.callout-note}
 
     # doc
 

@@ -2,7 +2,7 @@
 
 ## The Vietoris-Rips complex
 
-Another way to reduce the complexity of a metric space is to approximate it by a [simplicial complex](https://en.wikipedia.org/wiki/Simplicial_complex). Simplicial complexes are like small building blocks glued together, each of these blocks a small representative of an $n$-dimensional space.
+Another way to reduce the complexity of a metric space is to approximate it by a [simplicial complex](https://en.wikipedia.org/wiki/Simplicial_complex). Simplicial complexes are like small building blocks glued together, each of these blocks a small representative of an $n$-dimensional space: points, line segments, triangles, tetrahedrons, and so on.
 
 The [Vietoris-Rips complex](https://en.wikipedia.org/wiki/Vietoris%E2%80%93Rips_complex) is build as follows: given a metric space $(X, d)$ and an $\epsilon > 0$, define the following simplicial complex:
 
@@ -52,10 +52,12 @@ Now take $L$ as a hundred random points and let's create the ball mapper of $X$ 
 
 ```{julia}
 L = rand(1:1000, 100)
-mp = ball_mapper(X, L, ϵ = 0.5)
+mp = ball_mapper(X, L, ϵ = 0.5);
 ```
 
 
 ```{julia}
 mapper_plot(mp)
 ```
+
+That's quite a circle!

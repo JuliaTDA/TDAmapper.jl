@@ -1,0 +1,3 @@
+[deps]
+RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
+TidierData = "fe2206b3-d496-4ee9-a338-6a095c4ece80"

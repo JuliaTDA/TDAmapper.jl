@@ -13,6 +13,7 @@ using DataFrames; using NearestNeighbors;
 using Graphs
 using Pipe: @pipe
 using StatsBase
+using Documenter
 
 export mean,
     @pipe,
@@ -69,8 +70,7 @@ include("mapper.jl");
 export mapper;
 
 include("utils.jl");
-export unique_sort,
-    transpose_matrix;
+export unique_sort;
 
 # include("sampling.jl");
 # export epsilon_net;
@@ -88,5 +88,6 @@ export ball_mapper;
 
 using Markdown;
 include("quarto_aux.jl");
+export @qdoc;
 
 end # module

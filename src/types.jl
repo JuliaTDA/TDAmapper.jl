@@ -1,10 +1,25 @@
-# the indexes of a subset of points
+"""
+A vector of integers, generally interpreted as 
+indexes of a point cloud.
+"""
 SubsetIndex = Vector{<:Integer}
 
+"""
+A covering is interpreted as a vector of subsets of indexes 
+of a given point cloud `X`.
+"""
 Covering = Vector{<:SubsetIndex}
 
-PointCloud = Matrix{<:Real}
+"""
+A generic `n x m` matrix of real numbers, interpreted as points
+`m` points in the `n`-dimensional euclidean space.
+"""
+PointCloud = Matrix{<:Number}
 
+"""
+A pair `X` with a covering `covering`. Useful when creating
+graphs from coverings.
+"""
 struct CoveredPointCloud
     X::PointCloud
     covering::Covering

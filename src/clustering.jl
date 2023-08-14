@@ -34,36 +34,6 @@ function cluster_dbscan(
         )
 end
 
-"""
-    split_pre_image
-
-"""
-function split_pre_image(
-    X::PointCloud, id_pbs; clustering = cluster_dbscan
-    )
-    clustered_pb_ids = []
-    node_origin = String[]
-
-    @showprogress "Splitting pre images..." for i ∈ eachindex(id_pbs)
-
-        # store the pre image
-        pb = X[:, id_pbs[i]]
-    
-        # store the cluster of each point
-        cl = clustering(pb)
-        
-        # split the pre image according to the clustering algorithm
-        for cluster_id ∈ unique_sort(cl)
-            ids = findall(==(cluster_id), cl)
-            s = id_pbs[i][ids]
-            push!(clustered_pb_ids, s)
-            push!(node_origin, "$(i)-$(cluster_id)")
-        end    
-    end    
-
-    return clustered_pb_ids, node_origin
-end
-
 function split_covering(
     CX::CoveredPointCloud; clustering = cluster_dbscan
     )

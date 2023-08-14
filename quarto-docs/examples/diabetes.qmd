@@ -1,0 +1,77 @@
+# The Reaven and Miller diabetes dataset
+
+Let's reproduce the results of [...].
+
+Loading the dataframe:
+
+```{julia}
+using RCall
+using TidierData
+using TDAmapper
+
+df = R"""
+if (require("rrcov") == FALSE) {
+    install.packages("rrcov")
+}
+
+library(rrcov)
+data("diabetes")
+
+diabetes
+""" |> rcopy
+```
+
+Now, let's extract only the numeric columns 
+
+```{julia}
+pre_X = @chain df begin
+    @select(rw, fpg, glucose, insulin, sspg)
+    Matrix    
+    end
+```
+
+and normalize them
+
+```{julia}
+function normalize(x)
+    dev = std(x)
+    if (std(x) ≈ 0) 
+        dev = 1
+    end
+
+    (x .- mean(x)) ./ dev
+end
+
+X = mapslices(normalize, pre_X, dims = 1)' |> Matrix
+```
+
+## Mapper
+
+We then create the calculate the mapper graph of $X$, using the excentricity filter, a covering and the dbscan cluster:
+
+```{julia}
+fv = excentricity(X)
+covering = uniform(fv, overlap = 160, length = 10)
+mp = mapper(X, fv, covering, clustering = x -> cluster_dbscan(x, radius = 1))
+```
+
+
+```{julia}
+node_values = node_colors(mp, df.group .|> string)
+node_positions = layout_mds(mp.CX, dim = 3)
+
+mapper_plot(mp, node_values = node_values, node_positions = node_positions)
+```
+
+## Ball mapper
+
+```{julia}
+mp = ball_mapper(X, rand(1:145, 80) |> unique, ϵ = 2)
+```
+
+```{julia}
+node_values = node_colors(mp, df.group .|> string)
+node_positions = layout_mds(mp.CX, dim = 3)
+
+mapper_plot(mp, node_values = node_values, node_positions = node_positions)
+```

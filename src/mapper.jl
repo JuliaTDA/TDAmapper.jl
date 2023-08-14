@@ -19,6 +19,7 @@ function mapper(
     ,filter_values::Vector{<:Real}
     ,covering_intervals::Vector{<:Interval}
     ;clustering = cluster_dbscan
+    ,nerve_function = nerve_1d
     )
  
     # calculate the pullback
@@ -29,7 +30,7 @@ function mapper(
 
     CX = CoveredPointCloud(X, covering)
 
-    graph = nerve_1d(CX)
+    graph = nerve_function(CX)
 
     mapper = Mapper(CX = CX, graph = graph)
     return mapper

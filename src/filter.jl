@@ -1,7 +1,11 @@
 """
-    excentricity(p::Vector{<:Real}, X::PointCloud; metric = Euclidean())
+    excentricity(
+        p::Vector{<:Real}, X::PointCloud; 
+        metric = Euclidean()
+        )
 
-Calculate the distance of p to every other point of X using the metric `metric`
+Calculate the distance of p to every other point of X using 
+the metric `metric`.
 """
 function excentricity(p::Vector{<:Real}, X::PointCloud; metric::SemiMetric = Euclidean())
     n_points = size(X)[2]

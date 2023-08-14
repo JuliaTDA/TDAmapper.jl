@@ -1,5 +1,8 @@
 """
-Create the adjacent matrix from a covering
+    nerve_1d(CX::CoveredPointCloud)
+
+Given a covered point cloud `CX`, return the adjacency
+matrix of the 1-skeleton nerve of `CX.covering`.
 """
 function nerve_1d(CX::CoveredPointCloud)
     n = CX.covering |> length
