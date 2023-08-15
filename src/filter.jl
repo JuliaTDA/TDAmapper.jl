@@ -1,16 +1,21 @@
 """
     excentricity(
         p::Vector{<:Real}, X::PointCloud; 
-        metric = Euclidean()
+        metric = Euclidean(),
+        kernel_function::Function = identity
         )
 
 Calculate the distance of p to every other point of X using 
 the metric `metric`.
 """
-function excentricity(p::Vector{<:Real}, X::PointCloud; metric::SemiMetric = Euclidean())
+function excentricity(
+    p::Vector{<:Real}, X::PointCloud; metric::SemiMetric = Euclidean(),
+    kernel_function::Function = identity
+    )
     n_points = size(X)[2]
 
-    s = sum(colwise(metric, p, X)) / n_points                    
+    s = colwise(metric, p, X) .|> kernel_function |> sum
+    s /= n_points
 
     return s
 end
@@ -20,7 +25,8 @@ end
 
 Calculate the distance of every point p ∈ X to every other point of X using the metric `metric`
 """
-function excentricity(X::PointCloud; metric::SemiMetric = Euclidean())
+function excentricity(X::PointCloud; metric::SemiMetric = Euclidean(),
+    kernel_function::Function = identity)
     n_points = size(X)[2]
     
     s = zeros(Float32, n_points)
@@ -29,7 +35,7 @@ function excentricity(X::PointCloud; metric::SemiMetric = Euclidean())
 
     @threads for i ∈ 1:n_points 
         p = X[:, i]       
-        s[i] = excentricity(p, X; metric = metric)
+        s[i] = excentricity(p, X; metric = metric, kernel_function = kernel_function)
     end
 
     return s

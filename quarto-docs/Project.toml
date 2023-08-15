@@ -1,3 +1,5 @@
 [deps]
+Distances = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 RDatasets = "ce6b1742-4840-55fa-b093-852dadbb1d8b"
 TidierData = "fe2206b3-d496-4ee9-a338-6a095c4ece80"
