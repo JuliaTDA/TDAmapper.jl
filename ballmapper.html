@@ -137,7 +137,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing</span></a>
+ <span class="menu-text">Start here</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -165,6 +165,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./generalization.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Generalization</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Examples</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./examples/diabetes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Reaven and Miller diabetes dataset</span></a>
   </div>
 </li>
       </ul>
@@ -206,7 +223,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="the-vietoris-rips-complex" class="level2">
 <h2 class="anchored" data-anchor-id="the-vietoris-rips-complex">The Vietoris-Rips complex</h2>
-<p>Another way to reduce the complexity of a metric space is to approximate it by a <a href="https://en.wikipedia.org/wiki/Simplicial_complex">simplicial complex</a>. Simplicial complexes are like small building blocks glued together, each of these blocks a small representative of an <span class="math inline">\(n\)</span>-dimensional space.</p>
+<p>Another way to reduce the complexity of a metric space is to approximate it by a <a href="https://en.wikipedia.org/wiki/Simplicial_complex">simplicial complex</a>. Simplicial complexes are like small building blocks glued together, each of these blocks a small representative of an <span class="math inline">\(n\)</span>-dimensional space: points, line segments, triangles, tetrahedrons, and so on.</p>
 <p>The <a href="https://en.wikipedia.org/wiki/Vietoris%E2%80%93Rips_complex">Vietoris-Rips complex</a> is build as follows: given a metric space <span class="math inline">\((X, d)\)</span> and an <span class="math inline">\(\epsilon &gt; 0\)</span>, define the following simplicial complex:</p>
 <p><span class="math display">\[
 VR(X, \epsilon) = \{ [ x_1, \ldots, x_n ] \; d(x_i, x_j) &lt; \epsilon, \forall i, j \}
@@ -241,24 +258,22 @@ VR(X, \epsilon) = \{ [ x_1, \ldots, x_n ] \; d(x_i, x_j) &lt; \epsilon, \forall 
 <div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CairoMakie</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scatter</span>(X)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
-<p><img src="ballmapper_files/figure-html/cell-3-output-1.svg" class="img-fluid"></p>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<p><img src="ballmapper_files/figure-html/cell-3-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Now take <span class="math inline">\(L\)</span> as a hundred random points and let’s create the ball mapper of <span class="math inline">\(X\)</span> with radius <span class="math inline">\(\epsilon = 0.1\)</span>:</p>
 <div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>L <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">1000</span>, <span class="fl">100</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> <span class="fu">ball_mapper</span>(X, L, ϵ <span class="op">=</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>Mapper graph of X</code></pre>
-</div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mp <span class="op">=</span> <span class="fu">ball_mapper</span>(X, L, ϵ <span class="op">=</span> <span class="fl">0.5</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mapper_plot</span>(mp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
-<p><img src="ballmapper_files/figure-html/cell-5-output-1.svg" class="img-fluid"></p>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mapper_plot</span>(mp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<p><img src="ballmapper_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
 </div>
 </div>
+<p>That’s quite a circle!</p>
 
 
 </section>

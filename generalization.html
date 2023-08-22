@@ -103,7 +103,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing</span></a>
+ <span class="menu-text">Start here</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -135,6 +135,23 @@ ul.task-list li input[type="checkbox"] {
 </li>
       </ul>
   </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Examples</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./examples/diabetes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">The Reaven and Miller diabetes dataset</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
     </ul>
     </div>
 </nav>
@@ -148,7 +165,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-is-a-mapper-algorithm" id="toc-what-is-a-mapper-algorithm" class="nav-link active" data-scroll-target="#what-is-a-mapper-algorithm">What is a mapper algorithm?</a>
   <ul class="collapse">
   <li><a href="#covering-step" id="toc-covering-step" class="nav-link" data-scroll-target="#covering-step">Covering step</a></li>
-  <li><a href="#graph-step" id="toc-graph-step" class="nav-link" data-scroll-target="#graph-step">Graph step</a></li>
+  <li><a href="#nerve-step" id="toc-nerve-step" class="nav-link" data-scroll-target="#nerve-step">Nerve step</a></li>
   </ul></li>
   <li><a href="#creating-my-own-mapper" id="toc-creating-my-own-mapper" class="nav-link" data-scroll-target="#creating-my-own-mapper">Creating my own mapper</a></li>
   </ul>
@@ -179,7 +196,7 @@ ul.task-list li input[type="checkbox"] {
 <p>We can boil down the two mapper algorithms we saw earlier as follows:</p>
 <ol type="1">
 <li>(covering step) Given a metric space <span class="math inline">\((X, d)\)</span>, create a covering <span class="math inline">\(C\)</span> of <span class="math inline">\(X\)</span>;</li>
-<li>(graph step) Using <span class="math inline">\(C\)</span> as vertex set, create a graph.</li>
+<li>(nerve step) Using <span class="math inline">\(C\)</span> as vertex set, create a graph.</li>
 </ol>
 <p>In the classical mapper context, <span class="math inline">\(C\)</span> is generated using the clustering of pre-images of a function <span class="math inline">\(f: X \to \mathbb{R}\)</span>. In the ball mapper scenario, we cover <span class="math inline">\(X\)</span> using <span class="math inline">\(\epsilon\)</span>-balls with centers as a subset of <span class="math inline">\(X\)</span>.</p>
 <section id="covering-step" class="level3">
@@ -187,14 +204,14 @@ ul.task-list li input[type="checkbox"] {
 <p>Let <span class="math inline">\(X\)</span>, <span class="math inline">\(L\)</span> and <span class="math inline">\(\epsilon\)</span> be given as in the ball mapper case. For any <span class="math inline">\(l \in L\)</span>, define <span class="math inline">\(x_l\)</span> = <code>X[:, l]</code>. Examples of how to generalize the covering step:</p>
 <ul>
 <li><p>Fix <span class="math inline">\(n &gt; 0\)</span> integer. Create a ball <span class="math inline">\(B\)</span> of radius <span class="math inline">\(\epsilon\)</span> around <span class="math inline">\(x_l\)</span>. If <span class="math inline">\(B\)</span> contains less than <span class="math inline">\(n\)</span> elements, then we redefine <span class="math inline">\(B\)</span> as the set of <span class="math inline">\(n\)</span> nearest neighbors of <span class="math inline">\(x_l\)</span>.</p></li>
-<li><p>Fix <span class="math inline">\(\lambda &gt; 0\)</span>. Let <span class="math inline">\(d_1\)</span> be the distance between <span class="math inline">\(x_l\)</span> and its closest point. Create a ball <span class="math inline">\(B\)</span> of radius <span class="math inline">\(\lambda * d_1\)</span>. Proceed like this to create a covering of <span class="math inline">\(X\)</span>.</p></li>
+<li><p>Fix <span class="math inline">\(\lambda &gt; 0\)</span>. Let <span class="math inline">\(d_l\)</span> be the distance between <span class="math inline">\(x_l\)</span> and its closest point. Create a ball <span class="math inline">\(B\)</span> of radius <span class="math inline">\(\lambda * d_1\)</span>. Proceed like this to create a covering of <span class="math inline">\(X\)</span>.</p></li>
 </ul>
 </section>
-<section id="graph-step" class="level3">
-<h3 class="anchored" data-anchor-id="graph-step">Graph step</h3>
-<p>There are many alternatives to the nerve construction. Let <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> be two elements of a covering <span class="math inline">\(C\)</span>. Let <span class="math inline">\(G = (V, E)\)</span> be a graph with vertex-set <span class="math inline">\(V = C\)</span>. Examples of how to generalize the graph step:</p>
+<section id="nerve-step" class="level3">
+<h3 class="anchored" data-anchor-id="nerve-step">Nerve step</h3>
+<p>There are many alternatives to the nerve construction. Let <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> be two elements of a covering <span class="math inline">\(C\)</span>. Let <span class="math inline">\(G = (V, E)\)</span> be a graph with vertex-set <span class="math inline">\(V = C\)</span>. Examples of how to generalize the nerve step:</p>
 <ul>
-<li>Fix <span class="math inline">\(k &gt; 0\)</span>. Define <span class="math inline">\((a, b) \in E\)</span> iff <span class="math inline">\(|a \cap b| \geq k\)</span>, that is: we will only allow intersections with at least <span class="math inline">\(k\)</span> elements.</li>
+<li>Fix <span class="math inline">\(k &gt; 0\)</span>. Define <span class="math inline">\((a, b) \in E\)</span> iff <span class="math inline">\(|a \cap b| \geq k\)</span>, that is: we will only allow intersections with at least <span class="math inline">\(k\)</span> elements. Setting <span class="math inline">\(k = 1\)</span> will give us the usual nerve graph.</li>
 </ul>
 </section>
 </section>
@@ -202,8 +219,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="creating-my-own-mapper">Creating my own mapper</h2>
 <p>You can change the 2 steps above within the context of the ball mapper, as can be seen in the docs.</p>
 <div class="cell" data-execution_count="1">
-<div class="cell-output cell-output-display" data-execution_count="14">
-<div class="callout callout-style-simple callout-note callout-titled">
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -213,7 +230,7 @@ doc
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<pre><code>ball_mapper(
+<pre><code>ball_mapper_generic(
     X::PointCloud, L::Vector{&lt;:Integer}, 
     covering_function::Function,
     graph_function::Function
@@ -231,24 +248,6 @@ doc
 <section id="details" class="level3">
 <h3 class="anchored" data-anchor-id="details">Details</h3>
 <p>See the “Generalization” page of the online documentation.</p>
-<pre><code>ball_mapper(
-    X::PointCloud, L::Vector{&lt;:Integer}; 
-    ϵ::Number = 1
-    )</code></pre>
-<p>Creates the ball mapper of a metric space <code>X</code> subsampled by <code>L</code>.</p>
-</section>
-<section id="arguments-1" class="level3">
-<h3 class="anchored" data-anchor-id="arguments-1">Arguments</h3>
-<ul>
-<li><code>X::PointCloud</code>: a point cloud.</li>
-<li><code>L::Vector{&lt;:Integer}</code>: a subset of index of <code>X</code>, that is: L is a subset of [1:size(X)[2]].</li>
-<li><code>ϵ::Number</code>: the radius of the balls around the points <code>X[:, l]</code> for <code>l</code> ∈ <code>L</code>.</li>
-</ul>
-</section>
-<section id="details-1" class="level3">
-<h3 class="anchored" data-anchor-id="details-1">Details</h3>
-<p>For each index <code>i</code> of <code>L</code>, we define <code>c_i</code> as the ball of radius <code>ϵ</code> around <code>X[:, i]</code>. We then define the covering <code>C = {c_i, i ∈ L}.</code></p>
-<p>After that, we define the ball mapper as the graph given by the 1-skeleton of <code>C</code>.</p>
 </section>
 </div>
 </div>
