@@ -13,7 +13,6 @@ using DataFrames; using NearestNeighbors;
 using Graphs
 using Pipe: @pipe
 using StatsBase
-using Documenter
 
 export mean,
     @pipe,
@@ -84,10 +83,7 @@ export rescale,
     node_colors;
 
 include("ball_mapper.jl");
-export ball_mapper;
-
-using Markdown;
-include("quarto_aux.jl");
-export @qdoc;
+export ball_mapper, 
+    ball_mapper_generic;
 
 end # module

@@ -2,7 +2,9 @@
 
 Let's reproduce the results of [...].
 
-Loading the dataframe:
+## Dataset 
+
+To load the dataset, we will use a R package that contains it, and then convert it to a Julia DataFrame. You will need a working R installation for that.
 
 ```{julia}
 using RCall
@@ -18,7 +20,11 @@ library(rrcov)
 data("diabetes")
 
 diabetes
-""" |> rcopy
+""" |> rcopy;
+```
+
+```{julia}
+first(df, 10)
 ```
 
 Now, let's extract only the numeric columns 
@@ -27,7 +33,7 @@ Now, let's extract only the numeric columns
 pre_X = @chain df begin
     @select(rw, fpg, glucose, insulin, sspg)
     Matrix    
-    end
+    end;
 ```
 
 and normalize them
@@ -42,32 +48,18 @@ function normalize(x)
     (x .- mean(x)) ./ dev
 end
 
-X = mapslices(normalize, pre_X, dims = 1)' |> Matrix
-```
-
-## Mapper
-
-We then create the calculate the mapper graph of $X$, using the excentricity filter, a covering and the dbscan cluster:
-
-```{julia}
-fv = excentricity(X)
-covering = uniform(fv, overlap = 160, length = 10)
-mp = mapper(X, fv, covering, clustering = x -> cluster_dbscan(x, radius = 1))
-```
-
-
-```{julia}
-node_values = node_colors(mp, df.group .|> string)
-node_positions = layout_mds(mp.CX, dim = 3)
-
-mapper_plot(mp, node_values = node_values, node_positions = node_positions)
+X = mapslices(normalize, pre_X, dims = 1)' |> Matrix;
 ```
 
 ## Ball mapper
 
+Now we calculate the ball mapper using all nodes, and setting $\epsilon = 0.5$:
+
 ```{julia}
-mp = ball_mapper(X, rand(1:145, 80) |> unique, ϵ = 2)
+mp = ball_mapper(X, [1:size(X)[2];], ϵ = 0.5);
 ```
+
+The resulting graph is the following
 
 ```{julia}
 node_values = node_colors(mp, df.group .|> string)
@@ -75,3 +67,5 @@ node_positions = layout_mds(mp.CX, dim = 3)
 
 mapper_plot(mp, node_values = node_values, node_positions = node_positions)
 ```
+
+We colored each node by the most commom type of diabetes of the points in the node. We can see two branches coming from the center: one going left, with overt type diabetes, and another one going up, with chemical type diabetes.

@@ -37,9 +37,9 @@ end
 X = mapslices(normalize, pre_X, dims = 1)' |> Matrix
 
 fv = excentricity(X)
-fv = excentricity(X, kernel_function = x -> exp(-(x^2)) / 5)
+fv = excentricity(X, kernel_function = x -> exp(-(x/10)^2))
 # fv = X[4, :]
-covering = uniform(fv, overlap = 100, length = 4)
+covering = uniform(fv, overlap = 100, length = 12)
 mp = mapper(X, fv, covering, clustering = x -> cluster_dbscan(x, radius = 1))
 mp.graph
 
@@ -53,7 +53,7 @@ mapper_plot(mp, node_values = node_values, node_positions = node_positions)
 
 
 
-mp = ball_mapper(X, [1:size(X)[2];], ϵ = 1)
+mp = ball_mapper(X, [1:size(X)[2];], ϵ = 0.5)
 mp.graph
 
 node_values = node_colors(mp, df.group .|> string)
