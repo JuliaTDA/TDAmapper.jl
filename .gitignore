@@ -1,2 +1,8 @@
-.vscode/settings.json
-docs/
+.vscode/
+# Ignore doc build artifacts and node modules
+docs/node_modules
+docs/build
+docs/.vitepress/dist
+node_modules/
+dist/
+draft/

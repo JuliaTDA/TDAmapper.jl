@@ -1,0 +1,38 @@
+# name: Documentation
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   docs:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Set up Julia
+#         uses: julia-actions/setup-julia@v2
+#         with:
+#           version: '1.9'
+#       - name: Install Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '20'
+#       - name: Install npm dependencies
+#         run: |
+#           cd docs
+#           npm install
+#       - name: Build and deploy docs
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+#         run: |
+#           cd docs
+#           julia --project=. -e '
+#             using Pkg
+#             Pkg.develop(PackageSpec(path=joinpath(pwd(), "..")))
+#             Pkg.instantiate()
+#             include("make.jl")'

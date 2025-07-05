@@ -9,81 +9,40 @@ module TDAmapper
 
 # using BenchmarkTools; 
 using Distances; using ProgressMeter;
-using DataFrames; using NearestNeighbors;
-using Graphs
-using Pipe: @pipe
+using Reexport;
+@reexport using MetricSpaces;
+using NearestNeighbors
 using StatsBase
 
-export mean,
-    @pipe,
-    DataFrame,
-    groupby;
+using Revise, TestItems, TestItemRunner
+using Graphs
+export Graph;
 
 import Base.Threads.@threads
 
 # mapper
 include("types.jl");
-export PointCloud,
-    SubsetIndex,
-    Covering,
-    CoveredPointCloud,
-    AbstractMapper,
-    AbstractMapperGraph,
-    MapperGraph,
+export AbstractMapper,
     Mapper,
-    BallMapper,
-    Interval,
-    in,
-    intersect;
-
-include("filter.jl");
-export excentricity;
+    BallMapper;
 
 include("covering.jl");
-export uniform, spaced;
-
-include("clustering.jl");
-export cluster_dbscan,
-    split_covering;
+export uniform;
 
 include("pullbacks.jl");
-export pre_image_covering;
+export pullback;
 
-using MultivariateStats, ManifoldLearning;
-include("layouts.jl");
-export layout_generic,
-    layout_mds,
-    layout_hlle,
-    layout_isomap,
-    layout_lem,
-    layout_lle,
-    layout_ltsa,
-    layout_tsne,
-    layout_diffmap;
-
-include("nerve.jl");
-export centroid;
-
-export Graph;
-include("mapper.jl");
-export mapper;
+include("clustering/ClusteringMethods.jl");
+export ClusteringMethods;
 
 include("utils.jl");
 export unique_sort;
 
-# include("sampling.jl");
-# export epsilon_net;
-
-using Colors; using ColorSchemes;
-using GLMakie; import NetworkLayout
-include("plots.jl");
-export rescale, 
-    colorscale, 
-    mapper_plot, 
-    node_colors;
+include("mapper.jl");
+export mapper;
 
 include("ball_mapper.jl");
-export ball_mapper, 
+export ball_mapper,
     ball_mapper_generic;
 
 end # module
