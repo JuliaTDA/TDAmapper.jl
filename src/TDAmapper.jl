@@ -24,16 +24,17 @@ import Base.Threads.@threads
 include("types.jl");
 export AbstractMapper,
     Mapper,
-    BallMapper;
+    BallMapper,
+    GeneralMapper;
 
-include("covering.jl");
-export uniform;
+include("IntervalCovering/IntervalCoverings.jl");
+export IntervalCoverings;
 
-include("pullbacks.jl");
-export pullback;
+include("ImageCoverings/ImageCoverings.jl");
+export ImageCoverings;
 
-include("clustering/ClusteringMethods.jl");
-export ClusteringMethods;
+include("ClusterCoverings/ClusterCoverings.jl");
+export ClusterCoverings;
 
 include("utils.jl");
 export unique_sort;
@@ -42,7 +43,8 @@ include("mapper.jl");
 export mapper;
 
 include("ball_mapper.jl");
-export ball_mapper,
+export 
+    ball_mapper,
     ball_mapper_generic;
 
 end # module

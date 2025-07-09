@@ -1,5 +1,3 @@
-abstract type AbstractMapperGraph end
-
 # mapper superclass
 abstract type AbstractMapper end
 
@@ -14,7 +12,14 @@ end
 @kwdef struct BallMapper <: AbstractMapper
     X::MetricSpace
     L::Vector{<:Integer}
-    graph::Graph
+    C::Covering
+    g::Graph
+end
+
+@kwdef struct GeneralMapper <: AbstractMapper
+    X::MetricSpace    
+    C::Covering
+    g::Graph
 end
 
 function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: Covering}

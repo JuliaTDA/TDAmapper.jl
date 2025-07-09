@@ -1,7 +1,5 @@
 using TDAmapper
 using Test
+using TestItemRunner
 
-@testset "TDAmapper.jl" begin
-    @test true
-    # Write your tests here.
-end
+@run_package_tests

@@ -30,7 +30,7 @@ Apply the DBSCAN clustering algorithm to a `MetricSpace` object `X` using the pa
 # Returns
 - Cluster assignments as an array, with outliers assigned to a separate cluster.
 """
-function (cl::DBscan)(X)
+function (cl::DBscan)(X::MetricSpace)
     CL.dbscan(
         as_matrix(X), cl.radius
         ; metric=cl.metric, min_neighbors=cl.min_neighbors,

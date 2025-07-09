@@ -46,20 +46,20 @@ end
     x = [0, 1]
     @test_throws AssertionError uniform(x, length = 1)
     
-    cov = uniform(x, length = 2, expansion = 0)
-    @test cov == [Interval(-0.5, 0.5), Interval(0.5, 1.5)]
+    cover = uniform(x, length = 2, expansion = 0)
+    @test cover == [Interval(-0.5, 0.5), Interval(0.5, 1.5)]
 
-    cov = uniform(x, length = 2, expansion = 1)
-    @test cov == [Interval(-1.0, 1.0), Interval(0.0, 2.0)]
+    cover = uniform(x, length = 2, expansion = 1)
+    @test cover == [Interval(-1.0, 1.0), Interval(0.0, 2.0)]
     
     for expansion ∈ [0:0.1:1;]
-        cov = uniform(x, length = 2, expansion = expansion)
-        @test abs(cov[1].b - cov[2].a) ≈ expansion        
+        local cover = uniform(x, length = 2, expansion = expansion)
+        @test abs(cover[1].b - cover[2].a) ≈ expansion        
     end
 
-    cov = uniform([1,10], length = 10, expansion = 1)
-    @test length(cov) == 10
-    @test cov[1] == Interval(0.0, 2.0)
+    cover = uniform([1,10], length = 10, expansion = 1)
+    @test length(cover) == 10
+    @test cover[1] == Interval(0.0, 2.0)
 end
 
 

@@ -1,4 +1,4 @@
-using TDAmapper.ClusteringMethods: split_covering
+using TDAmapper.ClusterCoverings: split_covering
 
 """
     mapper(
@@ -29,7 +29,7 @@ This function implements the Mapper algorithm for topological data analysis. It 
 """
 function mapper(
     X::MetricSpace, filter_values::Vector{<:Real}, image_cover::Vector{<:Interval}
-    ; clustering=ClusteringMethods.DBscan(), nerve_function=nerve_1d
+    ; clustering=ClusterCoverings.DBscan(), nerve_function=nerve_1d
 )
     # calculate the pullback
     pb_cover = pullback(filter_values, image_cover)
@@ -54,7 +54,24 @@ end
     clustering = ClusteringMethods.DBscan(radius=0.1)
 
     M = mapper(X, fv, image_covering, clustering=clustering)
-    @test M.X == X    
+    @test M.X == X
     @test Graphs.nv(M.g) == 4
     @test Graphs.ne(M.g) == 4
+
+    X = [[1, 0], [0, 1], [1, 2], [2, 1]] .|> float |> EuclideanSpace
+    fv = first.(X)
+    image_covering = uniform(fv, length=3)
+    clustering = ClusteringMethods.DBscan(radius=0.1)
+
+    M = mapper(X, fv, image_covering, clustering=clustering)
+    @test M.X == X
+    @test Graphs.nv(M.g) == 4
+    @test Graphs.ne(M.g) == 0
+end
+
+function general_mapper(
+    X::MetricSpace, C::Covering, nerve_function::Function
+)
+    g = nerve_function(C)
+    Mapper(X=X, C=C, g=g)
 end
