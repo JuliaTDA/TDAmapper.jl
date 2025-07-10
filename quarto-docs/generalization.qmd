@@ -4,7 +4,7 @@
 
 We can boil down the two mapper algorithms we saw earlier as follows:
 
-1) (covering step) Given a metric space $(X, d)$, create a covering $C$ of $X$;
+1) (cover step) Given a metric space $(X, d)$, create a cover $C$ of $X$;
 1) (nerve step) Using $C$ as vertex set, create a graph.
 
 In the classical mapper context, $C$ is generated using the clustering of pre-images of a function $f: X \to \mathbb{R}$. In the ball mapper scenario, we cover $X$ using $\epsilon$-balls with centers as a subset of $X$.

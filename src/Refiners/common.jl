@@ -1,0 +1,68 @@
+"""
+    create_outlier_cluster(x)
+
+Replaces all occurrences of `0` in the input array `x` with a value one greater than the current maximum of `x`.
+If there are no zeros in `x`, the array is returned unchanged.
+
+# Arguments
+- `x`: An array of numeric values.
+
+# Returns
+- An array where all zeros have been replaced by `maximum(x) + 1`, or the original array if no zeros are present.
+"""
+function create_outlier_cluster(x)
+    if any(==(0), x)
+        x = replace(x, 0 => maximum(x) + 1)
+    end
+
+    x
+end
+
+@testitem "create_outlier_cluster" begin
+    using TDAmapper.ClusteringMethods
+
+    x = [1, 2, 3]
+    @test create_outlier_cluster(x) == x
+
+    x[end] = 0
+    @test create_outlier_cluster(x) == [1, 2, 3]
+
+    x = [1, 1, 0]
+    @test create_outlier_cluster(x) == [1, 1, 2]
+
+    x = [0, 0, 0]
+    @test create_outlier_cluster(x) == [1, 1, 1]
+end
+
+"""
+    refine_cover(X::MetricSpace, C::Covering, R)
+
+Refines a given cover `C` of a metric space `X` using the specified refiner `R`. For each subset of indices in the cover, the function applies the refiner to partition the subset into clusters. The resulting clusters are then flattened into a single vector of integer indices. Any outliers (typically marked with 0 by some clustering methods) are reassigned to a separate outlier cluster.
+
+# Arguments
+- `X::MetricSpace`: The metric space containing the data points.
+- `C::Covering`: The initial cover, represented as a collection of index sets.
+- `R`: The refiner or clustering method to apply to each subset.
+
+# Returns
+- A refined cover as a vector of integer index sets, with outliers handled appropriately.
+"""
+function refine_cover(X::MetricSpace, C::Covering, R)
+    splitted_cover = map(C) do ids
+        # get cluster index of each element of X[ids]
+        # something like [1, 1, 2, 1, 3, 4, ...]
+        cluster_ids = R(X[ids])
+
+        # get the real index of each cluster
+        map(unique(sort(cluster_ids))) do cl_id
+            ids[findall(==(cl_id), cluster_ids)]
+        end
+    end
+
+    # this is a vector of vectors like [[1, 1, 2], [3, 4]], 
+    # so we need to reduce to a single vector of integers
+    cover = reduce(vcat, splitted_cover)
+
+    # substitute 0's (outlier, in some clustering methods) by another number
+    create_outlier_cluster(cover)    
+end

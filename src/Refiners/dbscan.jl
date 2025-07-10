@@ -12,7 +12,7 @@ A struct for configuring the DBSCAN clustering algorithm.
 - `min_neighbors::Integer=1`: The minimum number of neighbors required for a point to be considered a core point.
 - `min_cluster_size::Integer=1`: The minimum number of points required to form a cluster.
 """
-@kwdef struct DBscan
+@kwdef struct DBscan <: AbstractRefiner
     radius::Real = 0.1
     metric = Euclidean()
     min_neighbors::Integer = 1
@@ -38,4 +38,3 @@ function (cl::DBscan)(X::MetricSpace)
     ).assignments |>
     create_outlier_cluster
 end
-

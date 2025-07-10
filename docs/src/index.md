@@ -33,7 +33,7 @@ define the filter values
 fv = X[1, :];
 ```
 
-and the covering
+and the cover
 
 ```@example quick_start
 C = uniform(fv, overlap = 150);

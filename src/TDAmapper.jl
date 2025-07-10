@@ -8,43 +8,45 @@ See https://juliatda.github.io/TDAmapper.jl/ for documentation.
 module TDAmapper
 
 # using BenchmarkTools; 
-using Distances; using ProgressMeter;
-using Reexport;
-@reexport using MetricSpaces;
-using NearestNeighbors
-using StatsBase
+using ProgressMeter
+using Reexport
+@reexport using MetricSpaces
 
 using Revise, TestItems, TestItemRunner
 using Graphs
-export Graph;
+export Graph
 
 import Base.Threads.@threads
 
 # mapper
-include("types.jl");
-export AbstractMapper,
+include("types.jl")
+export AbstractCover,
+    AbstractMapper,
     Mapper,
     BallMapper,
-    GeneralMapper;
+    GeneralMapper
 
-include("IntervalCovering/IntervalCoverings.jl");
-export IntervalCoverings;
+include("covering.jl")
+export empty_cover
 
-include("ImageCoverings/ImageCoverings.jl");
-export ImageCoverings;
+include("IntervalCovers/IntervalCovers.jl")
+export IntervalCover
 
-include("ClusterCoverings/ClusterCoverings.jl");
-export ClusterCoverings;
+include("ImageCovers/ImageCovers.jl")
+export ImageCovers
 
-include("utils.jl");
-export unique_sort;
+include("Refiners/Refiners.jl")
+export Refiners
 
-include("mapper.jl");
-export mapper;
+include("Nerves/Nerves.jl")
+export Nerves
 
-include("ball_mapper.jl");
-export 
-    ball_mapper,
-    ball_mapper_generic;
+include("mapper.jl")
+export mapper
+
+# include("ball_mapper.jl")
+# export
+#     ball_mapper,
+#     ball_mapper_generic
 
 end # module

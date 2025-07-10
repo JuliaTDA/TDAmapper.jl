@@ -26,4 +26,4 @@ To be able to mimick the Reeb graph, we need to change some objects from the con
 The mapper graph can shed light to the geometry of $X$:
 
 - nodes are clusters of points of $X$;
-- edges indicate clusters that share points (i.e., overlap in the covering or clustering step).
+- edges indicate clusters that share points (i.e., overlap in the cover or clustering step).

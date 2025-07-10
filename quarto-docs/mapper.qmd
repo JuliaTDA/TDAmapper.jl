@@ -34,7 +34,7 @@ The mapper graph can shed light to the geometry of $X$:
 To be more precise, to calculate the mapper of a metric space $X$, we need the following ingredients:
 
 - a function $f: X \to \mathbb{R}$ that measures something interesting in $X$, as, for example, the excentricity, the first coordinate of PCA, and so on;
-- a covering $C$ of the image $f(X) \subset \mathbb{R}$;
+- a cover $C$ of the image $f(X) \subset \mathbb{R}$;
 - a method $l$ to cluster each $f^{-1}(c)$ for $c \in C$.
 
 When all of this is chosen, we have a covering of $X$ by clustering each pre-image of the elements of $C$, that is:

@@ -1,3 +1,11 @@
+abstract type AbstractCover end
+
+# All coverings return Vector{Vector{Int}} - indices into the original space
+function make_cover(c::AbstractCover, args...)
+    error("make_cover not implemented for $(typeof(C)). " *
+          "Please implement: make_cover(::$(typeof(C))) -> Vector{Vector{Int}}")
+end
+
 # mapper superclass
 abstract type AbstractMapper end
 
