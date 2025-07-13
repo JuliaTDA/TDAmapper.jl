@@ -99,6 +99,7 @@ end
 
 @testitem "uniform" begin
     using TDAmapper
+    using TDAmapper.IntervalCovers
     x = [0, 1]
     @test_throws AssertionError uniform(x, length=1)
     @test_throws AssertionError uniform(x, length=1, expansion=-1)

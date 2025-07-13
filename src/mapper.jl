@@ -29,7 +29,7 @@ function mapper(
     X::MetricSpace,
     C::AbstractImageCover,
     R::AbstractRefiner,
-    N::GraphNerve    
+    N::GraphNerve
 )
     raw_cover = make_cover(C)
     cover = refine_cover(X, raw_cover, R)

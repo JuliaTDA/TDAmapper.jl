@@ -6,7 +6,7 @@ using TestItems
 abstract type AbstractIntervalCover end
 
 # every AbstractIntervalCover must implement a method:
-function (ic::AbstractIntervalCover)(x::Vector{<:Real})
+function (::AbstractIntervalCover)(x::Vector{<:Real})
     @error "Method not implemented for this class!"
 end
 

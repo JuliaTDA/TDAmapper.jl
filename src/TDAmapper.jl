@@ -21,12 +21,13 @@ import Base.Threads.@threads
 # mapper
 include("types.jl")
 export AbstractCover,
+    make_cover,
     AbstractMapper,
     Mapper,
     BallMapper,
     GeneralMapper
 
-include("covering.jl")
+include("cover.jl")
 export empty_cover
 
 include("IntervalCovers/IntervalCovers.jl")
@@ -34,6 +35,9 @@ export IntervalCover
 
 include("ImageCovers/ImageCovers.jl")
 export ImageCovers
+
+include("DomainCovers/DomainCovers.jl")
+export DomainCovers
 
 include("Refiners/Refiners.jl")
 export Refiners
@@ -44,9 +48,11 @@ export Nerves
 include("mapper.jl")
 export mapper
 
-# include("ball_mapper.jl")
-# export
-#     ball_mapper,
-#     ball_mapper_generic
+include("ball_mapper.jl")
+export ball_mapper,
+    ball_mapper_generic
+
+# include("generic_mapper.jl")
+# export generic_mapper
 
 end # module
