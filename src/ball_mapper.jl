@@ -1,40 +1,4 @@
 """
-    ball_mapper_generic(
-        X::MetricSpace, L::Vector{<:Integer}, 
-        cover_function::Function,
-        graph_function::Function
-        )
-
-Creates the ball mapper of a metric space `X` subsampled by `L`.
-
-# Arguments
-
-- `X::MetricSpace`: a point cloud.
-- `L::Vector{<:Integer}`: a subset of index of `X`, that is:
-    L is a subset of [1:size(X)[2]].
-- `cover_function::Function`: a function that creates  
-    a cover for `X`. Its arguments are `X` and `L`.
-- `graph_function::Function`: a function that creates
-    a graph. It accepts a `CoveredMetricSpace` object.
-
-# Details
-
-See the "Generalization" page of the online documentation.
-"""
-function ball_mapper_generic(
-    X::MetricSpace, L::Vector{<:Integer},
-    cover_function::Function,
-    nerve_function::Function
-)
-    C = cover_function(X, L)
-    graph = nerve_function(C)
-
-    mp = BallMapper(
-        X=X, C=C, L=L, g=graph
-    )
-end
-
-"""
     ball_mapper(X::MetricSpace, L::Vector{<:Integer}; ϵ::Number = 1) -> BallMapper
 
 Creates the ball mapper of a metric space `X` subsampled by `L`.
@@ -70,23 +34,13 @@ mapper = ball_mapper(X, L, ϵ=ϵ)
 - [`ball_mapper_generic`](@ref): Generic version with custom functions
 - [`BallMapper`](@ref): The returned data structure
 """
-function ball_mapper(X::MetricSpace, L::Vector{<:Integer}; ϵ=1)
-    # Use EpsilonBall domain cover for the covering
-    cover_function = (X, L) -> begin
-        using TDAmapper.DomainCovers
-        epsilon_ball(X; L=L, epsilon=ϵ)
-    end
-    
-    # Use SimpleNerve for the graph construction
-    nerve_function = (cover) -> begin
-        using TDAmapper.Nerves
-        # Create a dummy metric space for interface compatibility
-        X_dummy = X  # We don't actually use X in SimpleNerve
-        nerve = SimpleNerve()
-        make_graph(X_dummy, cover, nerve)
-    end
-    
-    ball_mapper_generic(X, L, cover_function, nerve_function)
+function ball_mapper(X::MetricSpace, L::Vector{<:Integer}, epsilon=1)
+    general_mapper(
+        X,
+        TDAmapper.DomainCovers.EpsilonBall(X=X, L=L, epsilon=epsilon),
+        TDAmapper.Refiners.Trivial(),
+        TDAmapper.Nerves.SimpleNerve()
+    )
 end
 
 @testitem "ball_mapper" begin
@@ -95,14 +49,19 @@ end
 
     X = [1, 2, 3] .|> float |> EuclideanSpace
     L = [1, 2, 3]
-    ϵ = 1.0
-    ball_mapper(X, L, ϵ=ϵ)
-    @test false #!!!
+    epsilon = 1.0
 
-    ϵ = 0.9
-    ball_mapper(X, L, ϵ=ϵ)
+    M = ball_mapper(X, L, epsilon)
+    g = M.g
+    @test nv(g) == 3
+    @test nv(g) == 3
 
-    L = [2]
-    ϵ = 1.1
-    ball_mapper(X, L, ϵ=ϵ)
+    X = sphere(1000);
+    L = [1:100;]
+    epsilon = 0.1
+    
+    M = ball_mapper(X, L, epsilon)
+    g = M.g
+    @test nv(g) == 100
+    @test ne(g) >= 200
 end

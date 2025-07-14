@@ -1,9 +1,5 @@
-# # raw_cover = cover_function(X)
-# # cover = cluster(raw_cover)
-# # g = nerve_function(cover)
-
 """
-    generic_mapper(X::MetricSpace, C, R, N) -> GeneralMapper
+    general_mapper(X::MetricSpace, C, R, N) -> GeneralMapper
 
 A generic mapper implementation that combines covering, refinement, and nerve construction.
 
@@ -36,25 +32,17 @@ C = R1Cover(f_X=f_X, U=[Interval(0.5, 1.5), Interval(1.0, 2.5)])
 R = Trivial()
 N = SimpleNerve()
 
-mapper = generic_mapper(X, C, R, N)
+mapper = general_mapper(X, C, R, N)
 ```
 
 # See Also
 - [`mapper`](@ref): Specialized mapper for image covers
 - [`ball_mapper_generic`](@ref): Specialized for ball mappers
 """
-function generic_mapper(X::MetricSpace, C, R, N)
+function general_mapper(X::MetricSpace, C, R, N)
     raw_cover = make_cover(C)
     cover = refine_cover(X, raw_cover, R)
     g = make_graph(X, cover, N)
 
     GeneralMapper(X=X, C=cover, g=g)
 end
-
-# function mapper(X::MetricSpace, C::AbstractImageCover, R, N)
-    
-# end
-
-# function ball_mapper(X::MetricSpace, C::AbstractDomaingCovering, R, N)
-    
-# end

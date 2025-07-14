@@ -20,15 +20,15 @@ import Base.Threads.@threads
 
 # mapper
 include("types.jl")
-export AbstractCover,
-    make_cover,
-    AbstractMapper,
+export AbstractMapper,
     Mapper,
     BallMapper,
     GeneralMapper
 
 include("cover.jl")
-export empty_cover
+export AbstractCover,
+    make_cover,
+    empty_cover
 
 include("IntervalCovers/IntervalCovers.jl")
 export IntervalCover
@@ -44,6 +44,9 @@ export Refiners
 
 include("Nerves/Nerves.jl")
 export Nerves
+
+include("generic_mapper.jl");
+export general_mapper
 
 include("mapper.jl")
 export mapper

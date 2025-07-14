@@ -43,3 +43,7 @@ treating the entire space as a single cluster.
 function (t::Trivial)(X::MetricSpace)
     fill(1, length(X))
 end
+
+function TDAmapper.Refiners.refine_cover(X::MetricSpace, raw_cover::Covering, R::Trivial)
+    raw_cover
+end
