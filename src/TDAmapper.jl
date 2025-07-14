@@ -45,15 +45,14 @@ export Refiners
 include("Nerves/Nerves.jl")
 export Nerves
 
-include("generic_mapper.jl");
-export general_mapper
-
-include("mapper.jl")
+include("mapper.jl");
 export mapper
 
+include("classical_mapper.jl")
+export classical_mapper
+
 include("ball_mapper.jl")
-export ball_mapper,
-    ball_mapper_generic
+export ball_mapper
 
 # include("generic_mapper.jl")
 # export generic_mapper

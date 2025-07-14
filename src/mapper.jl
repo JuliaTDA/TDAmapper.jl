@@ -1,64 +1,48 @@
-using TDAmapper
-using TDAmapper.ImageCovers
-using TDAmapper.Refiners
-using TDAmapper.Nerves
-
 """
-    mapper(
-        X::MetricSpace,
-        C::AbstractImageCover,
-        R::AbstractRefiner,
-        N::GraphNerve    
-    ) -> Mapper
+    general_mapper(X::MetricSpace, C, R, N) -> GeneralMapper
 
-Constructs a Mapper object from a metric space using the Mapper algorithm.
+A generic mapper implementation that combines covering, refinement, and nerve construction.
 
 # Arguments
-- `X::MetricSpace`: The input metric space containing the data points.
-- `C::AbstractImageCover`: The image covering strategy.
-- `R::AbstractRefiner`: A refiner to apply to the pre-images of the cover intervals.
-- `N::GraphNerve`: A nerve function to compute the nerve (graph) of the cover.
+- `X::MetricSpace`: The input metric space containing the data points
+- `C`: A covering strategy (must implement `make_cover`)
+- `R`: A refinement strategy (must be callable on metric spaces)
+- `N`: A nerve construction strategy (must implement `make_graph`)
 
 # Returns
-- `Mapper`: An object containing the covered metric space and the resulting nerve graph.
+- `GeneralMapper`: A mapper object containing the metric space, refined covering, and graph
 
 # Description
-This function implements the Mapper algorithm for topological data analysis. It first computes the pullback of the cover intervals via the filter values, clusters the data points in each pre-image, constructs a covered metric space, and then computes the nerve (graph) of the cover. The result is returned as a `Mapper` object.
+This function implements a generic mapper algorithm by:
+1. Creating an initial covering using `make_cover(C)`
+2. Refining the covering using `refine_cover(X, raw_cover, R)`
+3. Constructing a graph using `make_graph(X, cover, N)`
+
+This provides a flexible framework for implementing different mapper variants
+by combining different covering, refinement, and nerve strategies.
+
+# Examples
+```julia
+using TDAmapper
+using TDAmapper.ImageCovers, TDAmapper.Refiners, TDAmapper.Nerves
+
+X = EuclideanSpace([[1.0, 2.0], [3.0, 4.0], [2.0, 3.0]])
+f_X = [1.0, 2.0, 1.5]  # Filter values
+C = R1Cover(f_X=f_X, U=[Interval(0.5, 1.5), Interval(1.0, 2.5)])
+R = Trivial()
+N = SimpleNerve()
+
+mapper = general_mapper(X, C, R, N)
+```
+
+# See Also
+- [`mapper`](@ref): Specialized mapper for image covers
+- [`ball_mapper_generic`](@ref): Specialized for ball mappers
 """
-function mapper(
-    X::MetricSpace,
-    C::AbstractImageCover,
-    R::AbstractRefiner,
-    N::GraphNerve
-)
+function mapper(X::MetricSpace, C, R, N)
     raw_cover = make_cover(C)
     cover = refine_cover(X, raw_cover, R)
     g = make_graph(X, cover, N)
 
     Mapper(X=X, C=cover, g=g)
 end
-
-# @testitem "mapper" begin
-#     using TDAmapper
-#     import Graphs
-
-#     X = sphere(1000, dim=2)
-#     fv = first.(X)
-#     image_covering = uniform(fv, length=3, expansion=0.3)
-#     clustering = ClusteringMethods.DBscan(radius=0.1)
-
-#     M = mapper(X, fv, image_covering, clustering=clustering)
-#     @test M.X == X
-#     @test Graphs.nv(M.g) == 4
-#     @test Graphs.ne(M.g) == 4
-
-#     X = [[1, 0], [0, 1], [1, 2], [2, 1]] .|> float |> EuclideanSpace
-#     fv = first.(X)
-#     image_covering = uniform(fv, length=3)
-#     clustering = ClusteringMethods.DBscan(radius=0.1)
-
-#     M = mapper(X, fv, image_covering, clustering=clustering)
-#     @test M.X == X
-#     @test Graphs.nv(M.g) == 4
-#     @test Graphs.ne(M.g) == 0
-# end
