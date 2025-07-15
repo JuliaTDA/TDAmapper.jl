@@ -17,8 +17,8 @@ intervals = covering([1.0, 2.0, 3.0, 4.0, 5.0])
 ```
 """
 @kwdef struct Uniform <: AbstractIntervalCover
-    length::Integer
-    expansion::Real
+    length::Integer=10
+    expansion::Real=0.25
 end
 
 """

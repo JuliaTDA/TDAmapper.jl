@@ -1,5 +1,5 @@
 """
-    general_mapper(X::MetricSpace, C, R, N) -> GeneralMapper
+    mapper(X::MetricSpace, C, R, N) -> GeneralMapper
 
 A generic mapper implementation that combines covering, refinement, and nerve construction.
 
@@ -10,7 +10,7 @@ A generic mapper implementation that combines covering, refinement, and nerve co
 - `N`: A nerve construction strategy (must implement `make_graph`)
 
 # Returns
-- `GeneralMapper`: A mapper object containing the metric space, refined covering, and graph
+- `Mapper`: A mapper object containing the metric space, refined covering, and graph
 
 # Description
 This function implements a generic mapper algorithm by:
@@ -32,12 +32,12 @@ C = R1Cover(f_X=f_X, U=[Interval(0.5, 1.5), Interval(1.0, 2.5)])
 R = Trivial()
 N = SimpleNerve()
 
-mapper = general_mapper(X, C, R, N)
+M = mapper(X, C, R, N)
 ```
 
 # See Also
-- [`mapper`](@ref): Specialized mapper for image covers
-- [`ball_mapper_generic`](@ref): Specialized for ball mappers
+- [`classical_mapper`](@ref): Specialized mapper for image covers
+- [`ball_mapper`](@ref): Specialized for ball mappers
 """
 function mapper(X::MetricSpace, C, R, N)
     raw_cover = make_cover(C)

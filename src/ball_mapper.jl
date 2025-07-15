@@ -35,7 +35,7 @@ mapper = ball_mapper(X, L, ϵ=ϵ)
 - [`BallMapper`](@ref): The returned data structure
 """
 function ball_mapper(X::MetricSpace, L::Vector{<:Integer}, epsilon=1)
-    general_mapper(
+    mapper(
         X,
         TDAmapper.DomainCovers.EpsilonBall(X=X, L=L, epsilon=epsilon),
         TDAmapper.Refiners.Trivial(),
