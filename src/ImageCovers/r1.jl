@@ -1,3 +1,5 @@
+using MetricSpaces
+
 """
     R1Cover <: AbstractImageCover
 

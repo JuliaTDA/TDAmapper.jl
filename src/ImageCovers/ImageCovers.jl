@@ -21,7 +21,7 @@ Optionally, they may also implement:
 """
 module ImageCovers
 
-using MetricSpaces
+using MetricSpac
 using ..TDAmapper
 using ..TDAmapper.IntervalCovers: AbstractIntervalCover
 using TestItems
