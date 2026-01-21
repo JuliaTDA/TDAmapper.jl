@@ -1,4 +1,4 @@
-using MetricSpaces
+using ..TDAmapper: Interval
 
 """
     R1Cover <: AbstractImageCover
