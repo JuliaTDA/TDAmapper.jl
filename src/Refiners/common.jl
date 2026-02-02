@@ -80,21 +80,25 @@ refined_cover = refine_cover(X, C, R)
 - [`AbstractRefiner`](@ref): Interface for refiner implementations
 """
 function refine_cover(X::MetricSpace, C::Covering, R)
-    splitted_cover = map(C) do ids
-        # get cluster index of each element of X[ids]
-        # something like [1, 1, 2, 1, 3, 4, ...]
+    # Preallocate result vector
+    result = Vector{Vector{Int}}()
+
+    for ids in C
+        isempty(ids) && continue
+
+        # Get cluster assignments for points in this cover element
         cluster_ids = R(X[ids])
 
-        # get the real index of each cluster
-        map(unique(sort(cluster_ids))) do cl_id
-            ids[findall(==(cl_id), cluster_ids)]
+        # Get unique cluster IDs (no need to sort - unique preserves first occurrence order)
+        unique_clusters = unique(cluster_ids)
+
+        # Map each cluster back to original indices
+        for cl_id in unique_clusters
+            cluster_indices = ids[findall(==(cl_id), cluster_ids)]
+            push!(result, cluster_indices)
         end
     end
 
-    # this is a vector of vectors like [[1, 1, 2], [3, 4]], 
-    # so we need to reduce to a single vector of integers
-    cover = reduce(vcat, splitted_cover)
-
-    # substitute 0's (outlier, in some clustering methods) by another number
-    create_outlier_cluster(cover)    
+    # Handle outliers (cluster 0 in some methods)
+    create_outlier_cluster(result)
 end

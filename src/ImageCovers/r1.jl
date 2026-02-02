@@ -95,7 +95,25 @@ covering = make_cover(img_cov)  # Returns [[1], [2], [3]]
 """
 # extend method from main module
 function TDAmapper.make_cover(img_cov::R1Cover)
-    [findall(x -> x ∈ interval, img_cov.f_X) for interval ∈ img_cov.U]
+    n = length(img_cov.f_X)
+    m = length(img_cov.U)
+
+    # Early return for edge cases
+    m == 0 && return Vector{Int}[]
+    n == 0 && return [Int[] for _ in 1:m]
+
+    # Single-pass algorithm: iterate over points once, assign to matching intervals
+    cover = [Int[] for _ in 1:m]
+
+    @inbounds for (i, val) in enumerate(img_cov.f_X)
+        for (j, interval) in enumerate(img_cov.U)
+            if val ∈ interval
+                push!(cover[j], i)
+            end
+        end
+    end
+
+    return cover
 end
 
 @testitem "R1Cover" begin

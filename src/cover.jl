@@ -58,11 +58,11 @@ Create a vector of empty integer arrays of length `size`.
 A vector of length `size`, where each element is an empty `Int64` array.
 
 # Throws
-- AssertionError: if `size` is negative.
+- `ArgumentError`: if `size` is negative.
 """
 function empty_cover(size::Integer)
-    @assert size >= 0 "`size` must be a non-negative integer!"
-    repeat([Int64[]], size)
+    size >= 0 || throw(ArgumentError("`size` must be a non-negative integer!"))
+    [Int[] for _ in 1:size]
 end
 
 @testitem "empty_cover" begin
@@ -70,4 +70,14 @@ end
     @test TDAmapper.empty_cover(1) == [[]]
     @test TDAmapper.empty_cover(3) == [[], [], []]
     @test length(TDAmapper.empty_cover(10)) == 10
+
+    # Test that negative size throws ArgumentError
+    @test_throws ArgumentError TDAmapper.empty_cover(-1)
+
+    # Test that arrays are independent (not shared references)
+    cover = TDAmapper.empty_cover(3)
+    push!(cover[1], 42)
+    @test cover[1] == [42]
+    @test cover[2] == []
+    @test cover[3] == []
 end

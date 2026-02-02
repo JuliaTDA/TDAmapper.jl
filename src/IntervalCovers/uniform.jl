@@ -68,7 +68,7 @@ This function creates a uniform interval covering by:
 - `Vector{Interval}`: A vector of `Interval` objects covering the range of `x`
 
 # Throws
-- `AssertionError`: If `length ≤ 1` or `expansion < 0`
+- `ArgumentError`: If `length ≤ 1` or `expansion < 0`
 
 # Example
 ```julia
@@ -88,8 +88,8 @@ function uniform(
     x::Vector{<:Real}
     ; length::Integer=10, expansion::Real=0.25
 )
-    @assert length > 1 "`length` must be greater than 1"
-    @assert expansion >= 0 "`expansion` must be non-negative"
+    length > 1 || throw(ArgumentError("`length` must be greater than 1"))
+    expansion >= 0 || throw(ArgumentError("`expansion` must be non-negative"))
 
     division = range(extrema(x)..., length=length)
     radius = ((division[2] - division[1]) / 2) * (1 + expansion)
@@ -101,8 +101,8 @@ end
     using TDAmapper
     using TDAmapper.IntervalCovers
     x = [0, 1]
-    @test_throws AssertionError uniform(x, length=1)
-    @test_throws AssertionError uniform(x, length=1, expansion=-1)
+    @test_throws ArgumentError uniform(x, length=1)
+    @test_throws ArgumentError uniform(x, length=1, expansion=-1)
 
     U = Uniform(length=2, expansion=0)
     cover = uniform(x, length=2, expansion=0)

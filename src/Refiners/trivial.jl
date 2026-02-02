@@ -47,3 +47,26 @@ end
 function TDAmapper.Refiners.refine_cover(X::MetricSpace, raw_cover::Covering, R::Trivial)
     raw_cover
 end
+
+@testitem "Trivial refiner" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+
+    # Test basic functionality
+    X = [1.0, 2.0, 3.0] |> EuclideanSpace
+    t = Trivial()
+    clusters = t(X)
+    @test clusters == [1, 1, 1]
+
+    # Test with different sizes
+    X2 = [[1.0, 2.0], [3.0, 4.0]] |> EuclideanSpace
+    @test t(X2) == [1, 1]
+
+    # Test refine_cover preserves input
+    raw_cover = [[1, 2], [2, 3]]
+    refined = refine_cover(X, raw_cover, t)
+    @test refined == raw_cover
+
+    # Test empty cover
+    @test refine_cover(X, Vector{Int}[], t) == Vector{Int}[]
+end
