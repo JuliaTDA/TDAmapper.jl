@@ -2,21 +2,25 @@ import Clustering as CL
 using Distances
 
 """
-    DBscan
+    DBscan{T<:Real, M<:Distances.SemiMetric}
 
 A struct for configuring the DBSCAN clustering algorithm.
 
+# Type Parameters
+- `T<:Real`: The numeric type for the radius parameter
+- `M<:Distances.SemiMetric`: The concrete metric type
+
 # Fields
-- `radius::Real=0.1`: The maximum distance between two samples for them to be considered as in the same neighborhood.
-- `metric`: The distance metric to use (default is `Euclidean()`).
-- `min_neighbors::Integer=1`: The minimum number of neighbors required for a point to be considered a core point.
-- `min_cluster_size::Integer=1`: The minimum number of points required to form a cluster.
+- `radius::T=0.1`: The maximum distance between two samples for them to be considered as in the same neighborhood.
+- `metric::M`: The distance metric to use (default is `Euclidean()`).
+- `min_neighbors::Int=1`: The minimum number of neighbors required for a point to be considered a core point.
+- `min_cluster_size::Int=1`: The minimum number of points required to form a cluster.
 """
-@kwdef struct DBscan <: AbstractRefiner
-    radius::Real = 0.1
-    metric::Distances.SemiMetric = Euclidean()
-    min_neighbors::Integer = 1
-    min_cluster_size::Integer = 1
+@kwdef struct DBscan{T<:Real, M<:Distances.SemiMetric} <: AbstractRefiner
+    radius::T = 0.1
+    metric::M = Euclidean()
+    min_neighbors::Int = 1
+    min_cluster_size::Int = 1
 end
 
 """

@@ -2,20 +2,25 @@ using Distances
 import NearestNeighbors as NN
 
 """
-    EpsilonBall <: AbstractDomainCover
+    EpsilonBall{S<:MetricSpace, T<:Real, M<:Distances.SemiMetric} <: AbstractDomainCover
 
 A domain covering strategy using balls of fixed radius around landmark points.
 
+# Type Parameters
+- `S<:MetricSpace`: The concrete type of the metric space
+- `T<:Real`: The numeric type for the epsilon parameter
+- `M<:Distances.SemiMetric`: The concrete metric type
+
 # Fields
-- `X::MetricSpace`: The metric space containing the data points
-- `L::Vector{<:Integer}`: Indices of landmark points in the metric space
-- `epsilon::Real`: Radius of the balls around each landmark point (default: 1)
-- `metric`: Distance metric to use (default: `Euclidean()`)
+- `X::S`: The metric space containing the data points
+- `L::Vector{Int}`: Indices of landmark points in the metric space
+- `epsilon::T`: Radius of the balls around each landmark point (default: 1.0)
+- `metric::M`: Distance metric to use (default: `Euclidean()`)
 
 # Description
-`EpsilonBall` creates a covering by placing a ball of radius `epsilon` around each 
-landmark point specified in `L`. Each ball contains all points within distance 
-`epsilon` of the corresponding landmark. The metric space `X` is stored in the 
+`EpsilonBall` creates a covering by placing a ball of radius `epsilon` around each
+landmark point specified in `L`. Each ball contains all points within distance
+`epsilon` of the corresponding landmark. The metric space `X` is stored in the
 struct along with the covering parameters.
 
 This is the standard covering used in ball mapper algorithms.
@@ -31,7 +36,7 @@ X = EuclideanSpace([[1.0, 2.0], [3.0, 4.0], [2.0, 3.0]])
 cover_strategy = EpsilonBall(X=X, L=[1, 3], epsilon=1.5)
 covering = cover_strategy()  # Apply the covering
 
-# Create ball covering with Manhattan distance  
+# Create ball covering with Manhattan distance
 cover_strategy = EpsilonBall(X=X, L=[1, 2], epsilon=2.0, metric=Cityblock())
 covering = cover_strategy()  # Apply the covering
 ```
@@ -40,11 +45,11 @@ covering = cover_strategy()  # Apply the covering
 - [`epsilon_ball`](@ref): Function interface for the same functionality
 - [`AbstractDomainCover`](@ref): Parent abstract type
 """
-@kwdef struct EpsilonBall <: AbstractDomainCover
-    X::MetricSpace
-    L::Vector{<:Integer}
-    epsilon::Real = 1.0
-    metric::Distances.SemiMetric = Euclidean()
+@kwdef struct EpsilonBall{S<:MetricSpace, T<:Real, M<:Distances.SemiMetric} <: AbstractDomainCover
+    X::S
+    L::Vector{Int}
+    epsilon::T = 1.0
+    metric::M = Euclidean()
 end
 
 """
