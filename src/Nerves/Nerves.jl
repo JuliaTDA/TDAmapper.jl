@@ -76,7 +76,7 @@ end
 include("simple_nerve.jl")
 export SimpleNerve
 
-export AbstractArray,
+export AbstractNerve,
     GraphNerve,
     make_graph
 

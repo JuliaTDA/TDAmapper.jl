@@ -43,8 +43,8 @@ covering = cover_strategy()  # Apply the covering
 @kwdef struct EpsilonBall <: AbstractDomainCover
     X::MetricSpace
     L::Vector{<:Integer}
-    epsilon::Real = 1
-    metric = Euclidean()
+    epsilon::Real = 1.0
+    metric::Distances.SemiMetric = Euclidean()
 end
 
 """
@@ -81,14 +81,15 @@ second_ball = covering[2]  # Points near landmark 3
 - [`epsilon_ball`](@ref): Function interface for the same functionality
 """
 function (EB::EpsilonBall)()
-    @assert length(EB.L) > 0 "L must have at least one element!"
-    @assert EB.L ⊆ eachindex(EB.X) "L must be a subset of indeces of X!"
+    length(EB.L) > 0 || throw(ArgumentError("L must have at least one element!"))
+    EB.L ⊆ eachindex(EB.X) || throw(ArgumentError("L must be a subset of indices of X!"))
 
     X_matrix = as_matrix(EB.X)
-    cover = empty_cover(length(EB.L))
+    tree = NN.BallTree(X_matrix, EB.metric)  # Build tree once: O(n log n)
 
-    for (i, l) ∈ enumerate(EB.L)
-        cover[i] = NN.inrange(NN.BallTree(X_matrix, EB.metric), EB.X[l], EB.epsilon)
+    cover = Vector{Vector{Int}}(undef, length(EB.L))
+    @inbounds for (i, l) ∈ enumerate(EB.L)
+        cover[i] = NN.inrange(tree, EB.X[l], EB.epsilon)  # Query: O(log n + k)
     end
 
     return cover
@@ -165,10 +166,10 @@ end
 
     X = [1, 2, 3] .|> float |> EuclideanSpace
     L = Int[]
-    @test_throws AssertionError EpsilonBall(X=X, L=L, epsilon=epsilon)()
+    @test_throws ArgumentError EpsilonBall(X=X, L=L, epsilon=epsilon)()
 
     L = [4]
-    @test_throws AssertionError EpsilonBall(X=X, L=L, epsilon=epsilon)()
+    @test_throws ArgumentError EpsilonBall(X=X, L=L, epsilon=epsilon)()
 
     X = sphere(101)
     L = [1:10:101;]

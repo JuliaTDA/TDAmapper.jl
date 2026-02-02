@@ -10,7 +10,7 @@ where two elements of the covering are connected by an edge if their intersectio
 - [`make_graph`](@ref): Constructs the nerve graph from a covering
 - [`AbstractNerve`](@ref): Parent abstract type
 """
-struct SimpleNerve end
+struct SimpleNerve <: AbstractNerve end
 
 """
     make_graph(X::MetricSpace, cover::Covering, N::SimpleNerve) -> Graph

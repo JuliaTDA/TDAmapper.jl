@@ -57,7 +57,7 @@ Convert a vector of vectors to a `Covering` type.
 This method ensures all inner vectors are converted to contain `Int32` elements, suitable for use as a covering.
 """
 function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: Covering}
-    [convert.(Int32, c) for c ∈ x]
+    [convert.(Int, c) for c ∈ x]
 end
 
 
@@ -93,4 +93,39 @@ Prints a brief summary including the number of vertices and edges in the mapper 
 """
 function Base.show(io::IO, M::AbstractMapper)
     print(io, "Mapper graph with $(Graphs.nv(M.g)) vertices and $(Graphs.ne(M.g)) edges")
+end
+
+@testitem "Mapper types" begin
+    using TDAmapper
+    using Graphs
+
+    # Test Covering type conversion
+    x = [[1, 2, 3], [4, 5]]
+    c = convert(Covering, x)
+    @test c == [[1, 2, 3], [4, 5]]
+    @test eltype(c[1]) == Int
+
+    # Test identity conversion
+    c2 = convert(Covering, c)
+    @test c2 === c
+
+    # Test Mapper struct creation
+    X = [1.0, 2.0, 3.0] |> EuclideanSpace
+    C = [[1, 2], [2, 3]]
+    g = SimpleGraph(2)
+    add_edge!(g, 1, 2)
+
+    M = Mapper(X=X, C=C, g=g)
+    @test M.X == X
+    @test M.C == C
+    @test Graphs.nv(M.g) == 2
+    @test Graphs.ne(M.g) == 1
+
+    # Test show method
+    io = IOBuffer()
+    show(io, M)
+    output = String(take!(io))
+    @test occursin("Mapper graph", output)
+    @test occursin("2 vertices", output)
+    @test occursin("1 edge", output)
 end

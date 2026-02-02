@@ -14,7 +14,7 @@ A struct for configuring the DBSCAN clustering algorithm.
 """
 @kwdef struct DBscan <: AbstractRefiner
     radius::Real = 0.1
-    metric = Euclidean()
+    metric::Distances.SemiMetric = Euclidean()
     min_neighbors::Integer = 1
     min_cluster_size::Integer = 1
 end
