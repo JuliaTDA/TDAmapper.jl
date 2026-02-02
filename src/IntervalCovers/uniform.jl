@@ -1,12 +1,15 @@
 """
-    Uniform <: AbstractIntervalCover
+    Uniform{T<:Real} <: AbstractIntervalCover
 
 A uniform interval covering that divides the range of a filter vector into equally-spaced intervals
 with configurable overlap.
 
+# Type Parameters
+- `T<:Real`: The numeric type for the expansion parameter
+
 # Fields
-- `length::Integer`: The number of intervals to create (must be > 1)
-- `expansion::Real`: The expansion factor for overlap between intervals (must be ≥ 0)
+- `length::Int`: The number of intervals to create (must be > 1)
+- `expansion::T`: The expansion factor for overlap between intervals (must be ≥ 0)
   - 0.0 means intervals just touch at endpoints
   - 1.0 means each interval is doubled in size, creating significant overlap
 
@@ -16,9 +19,9 @@ covering = Uniform(length=10, expansion=0.25)
 intervals = covering([1.0, 2.0, 3.0, 4.0, 5.0])
 ```
 """
-@kwdef struct Uniform <: AbstractIntervalCover
-    length::Integer=10
-    expansion::Real=0.25
+@kwdef struct Uniform{T<:Real} <: AbstractIntervalCover
+    length::Int = 10
+    expansion::T = 0.25
 end
 
 """

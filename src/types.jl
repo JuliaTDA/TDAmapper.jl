@@ -1,3 +1,4 @@
+using Graphs: AbstractGraph
 
 # Mapper superclass
 """
@@ -19,17 +20,23 @@ All mapper implementations typically contain:
 abstract type AbstractMapper end
 
 """
-    Mapper <: AbstractMapper
+    Mapper{S<:MetricSpace, G<:AbstractGraph} <: AbstractMapper
 
 Represents the result of a classical or generic mapper algorithm.
 
+# Type Parameters
+- `S<:MetricSpace`: The concrete type of the metric space
+- `G<:AbstractGraph`: The concrete type of the graph
+
 # Fields
-- `X::MetricSpace`: The original metric space that was analyzed
+- `X::S`: The original metric space that was analyzed
 - `C::Covering`: The final covering after refinement (as index vectors)
-- `g::Graph`: The mapper graph representing the nerve of the covering
+- `g::G`: The mapper graph representing the nerve of the covering
 
 # Description
 The `Mapper` struct is used by the `mapper` function to represent the result of mapper algorithms that combine different covering, refinement, and nerve strategies.
+
+The type parameters allow Julia to specialize methods on concrete types for better performance.
 
 # Example
 ```julia
@@ -42,10 +49,10 @@ using TDAmapper
 - [`generic_mapper`](@ref): Function that creates generalized mapper objects
 - [`BallMapper`](@ref): BallMapper implementation
 """
-@kwdef struct Mapper <: AbstractMapper
-    X::MetricSpace
+@kwdef struct Mapper{S<:MetricSpace, G<:AbstractGraph} <: AbstractMapper
+    X::S
     C::Covering
-    g::Graph
+    g::G
 end
 
 

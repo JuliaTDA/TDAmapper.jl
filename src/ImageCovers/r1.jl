@@ -1,13 +1,17 @@
 using ..TDAmapper: Interval
 
 """
-    R1Cover <: AbstractImageCover
+    R1Cover{T<:Real, I<:Interval} <: AbstractImageCover
 
 A covering implementation for real-valued filter functions on metric spaces.
 
+# Type Parameters
+- `T<:Real`: The numeric type for filter values
+- `I<:Interval`: The concrete interval type
+
 # Fields
-- `f_X::Vector{<:Real}`: The filter values computed on the metric space
-- `U::Vector{Interval}`: The interval covering of the filter's range
+- `f_X::Vector{T}`: The filter values computed on the metric space
+- `U::Vector{I}`: The interval covering of the filter's range
 
 # Description
 `R1Cover` implements image coverings for filter functions f: X → ℝ by:
@@ -44,9 +48,9 @@ covering = make_cover(cover)  # Returns vector of index vectors
 - [`AbstractIntervalCover`](@ref): Interface for interval covering strategies
 - [`Uniform`](@ref): A common interval covering implementation
 """
-@kwdef struct R1Cover <: AbstractImageCover    
-    f_X::Vector{<:Real}
-    U::Vector{Interval}
+@kwdef struct R1Cover{T<:Real, I<:Interval} <: AbstractImageCover
+    f_X::Vector{T}
+    U::Vector{I}
 end
 
 """
