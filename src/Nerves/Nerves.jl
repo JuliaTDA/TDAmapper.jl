@@ -75,10 +75,16 @@ function make_graph(X::MetricSpace, cover::Covering, N::AbstractNerve)
 end
 
 include("simple_nerve.jl")
-export SimpleNerve
+include("min_count_nerve.jl")
+include("percentage_nerve.jl")
+include("jaccard_nerve.jl")
 
 export AbstractNerve,
     GraphNerve,
+    SimpleNerve,
+    MinCountNerve,
+    PercentageNerve,
+    JaccardNerve,
     make_graph
 
 end # module
