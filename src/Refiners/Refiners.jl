@@ -3,8 +3,8 @@
 
 A module containing refinement strategies for mapper algorithms.
 
-Refinement is the clustering step in mapper algorithms where each element of an 
-initial covering is further subdivided into clusters. This allows the algorithm 
+Refinement is the clustering step in mapper algorithms where each element of an
+initial covering is further subdivided into clusters. This allows the algorithm
 to capture finer structure within each cover element.
 
 # Exports
@@ -13,6 +13,11 @@ to capture finer structure within each cover element.
 - [`refine_cover`](@ref): Main refinement function
 - [`DBscan`](@ref): DBSCAN clustering refiner
 - [`Trivial`](@ref): No-clustering refiner
+- [`Hierarchical`](@ref): Hierarchical clustering refiner (single, complete, average, Ward linkage)
+- [`SingleLinkage`](@ref), [`CompleteLinkage`](@ref), [`AverageLinkage`](@ref), [`WardLinkage`](@ref): Convenience constructors
+- [`FirstEmptyBin`](@ref): Cutoff at first empty bin (classic TDAmapper heuristic)
+- [`KMeans`](@ref): K-means clustering refiner
+- [`KMedoids`](@ref): K-medoids clustering refiner
 
 # Interface
 All refiner implementations must provide a callable interface:
@@ -76,5 +81,21 @@ export DBscan
 
 include("trivial.jl")
 export Trivial
+
+include("hierarchical.jl")
+export Hierarchical,
+    SingleLinkage,
+    CompleteLinkage,
+    AverageLinkage,
+    WardLinkage
+
+include("first_empty_bin.jl")
+export FirstEmptyBin
+
+include("kmeans.jl")
+export KMeans
+
+include("kmedoids.jl")
+export KMedoids
 
 end
