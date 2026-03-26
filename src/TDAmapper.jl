@@ -22,11 +22,9 @@ const Covering = Vector{Vector{Int}}
 export Covering
 
 
-export Interval
-
 # Mapper types
 include("types.jl")
-export AbstractMapper, Mapper, Interval
+export AbstractMapper, Mapper
 
 include("cover.jl")
 export AbstractCover, make_cover
