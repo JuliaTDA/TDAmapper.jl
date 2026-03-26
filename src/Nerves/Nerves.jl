@@ -25,6 +25,7 @@ All concrete nerve types must implement:
 module Nerves
 
 using MetricSpaces
+using ..TDAmapper: Covering
 
 """
     AbstractNerve
