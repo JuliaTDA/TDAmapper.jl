@@ -1,38 +1,31 @@
-# name: Documentation
+name: Documentation
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
+    tags: '*'
+  pull_request:
 
-# jobs:
-#   docs:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Set up Julia
-#         uses: julia-actions/setup-julia@v2
-#         with:
-#           version: '1.9'
-#       - name: Install Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: '20'
-#       - name: Install npm dependencies
-#         run: |
-#           cd docs
-#           npm install
-#       - name: Build and deploy docs
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-#         run: |
-#           cd docs
-#           julia --project=. -e '
-#             using Pkg
-#             Pkg.develop(PackageSpec(path=joinpath(pwd(), "..")))
-#             Pkg.instantiate()
-#             include("make.jl")'
+jobs:
+  build:
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: read
+      statuses: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+      - uses: julia-actions/cache@v2
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+      - uses: julia-actions/julia-buildpkg@v1
+      - name: Build and deploy docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
+        run: julia --project=docs/ docs/make.jl
