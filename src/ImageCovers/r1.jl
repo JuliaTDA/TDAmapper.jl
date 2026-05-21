@@ -120,6 +120,24 @@ function TDAmapper.make_cover(img_cov::R1Cover)
     return cover
 end
 
+function TDAmapper.validate(c::R1Cover)
+    isempty(c.f_X) && throw(MapperArgumentError("R1Cover — f_X must not be empty"))
+    isempty(c.U) && throw(MapperArgumentError("R1Cover — U must not be empty (no intervals)"))
+    return nothing
+end
+
+@testitem "validate R1Cover" begin
+    using TDAmapper
+    using TDAmapper.ImageCovers
+
+    X = float([1, 2, 3])
+    U = [Interval(0.0, 1.5), Interval(1.0, 3.5)]
+
+    @test_throws MapperArgumentError validate(R1Cover(f_X=Float64[], U=U))
+    @test_throws MapperArgumentError validate(R1Cover(f_X=X, U=Interval{Float64}[]))
+    @test isnothing(validate(R1Cover(f_X=X, U=U)))
+end
+
 @testitem "R1Cover" begin
     using TDAmapper
     using TDAmapper.ImageCovers

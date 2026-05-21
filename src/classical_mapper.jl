@@ -1,5 +1,6 @@
 using TDAmapper
 using TDAmapper.ImageCovers
+using TDAmapper.IntervalCovers
 using TDAmapper.Refiners
 using TDAmapper.Nerves
 
@@ -32,6 +33,37 @@ function classical_mapper(
     N=SimpleNerve()
 )
     mapper(X, C, R, N)
+end
+
+
+"""
+    classical_mapper(X, f::Function, cover1, cover2, R=DBscan(), N=SimpleNerve())
+
+2D mapper variant. `f(x)` must return a 2-tuple `(f₁, f₂)`.
+"""
+function classical_mapper(
+    X::MetricSpace,
+    f::Function,
+    cover1::AbstractIntervalCover,
+    cover2::AbstractIntervalCover,
+    R=DBscan(),
+    N=SimpleNerve()
+)
+    f_X = [f(x) for x in X]
+    C = R2Cover(f_X, cover1, cover2)
+    mapper(X, C, R, N)
+end
+
+
+@testitem "classical_mapper 2D" begin
+    using TDAmapper
+    using TDAmapper.ImageCovers, TDAmapper.IntervalCovers, TDAmapper.Refiners
+
+    X = [[float(i), float(j)] for i in 1:5, j in 1:5] |> vec |> EuclideanSpace
+    f = x -> (x[1], x[2])
+    M = classical_mapper(X, f, Uniform(length=3, expansion=0.3), Uniform(length=3, expansion=0.3))
+    @test M isa Mapper
+    @test length(M.C) > 0
 end
 
 

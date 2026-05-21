@@ -48,6 +48,16 @@ function TDAmapper.Refiners.refine_cover(X::MetricSpace, raw_cover::Covering, R:
     raw_cover
 end
 
+function TDAmapper.validate(::Trivial)
+    return
+end
+
+@testitem "validate Trivial" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test isnothing(validate(Trivial()))
+end
+
 @testitem "Trivial refiner" begin
     using TDAmapper
     using TDAmapper.Refiners

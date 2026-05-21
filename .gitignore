@@ -6,3 +6,10 @@ docs/.vitepress/dist
 node_modules/
 dist/
 draft/
+
+# Quarto-rendered tutorial output
+docs/*.html
+docs/search.json
+docs/styles.css
+docs/site_libs/
+docs/superpowers/

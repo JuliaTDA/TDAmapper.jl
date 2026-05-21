@@ -80,6 +80,21 @@ function quantile_cover(
     end
 end
 
+function TDAmapper.validate(c::QuantileCover)
+    c.n_intervals > 1 || throw(MapperArgumentError("QuantileCover — n_intervals must be > 1, got $(c.n_intervals)"))
+    c.expansion >= 0 || throw(MapperArgumentError("QuantileCover — expansion must be ≥ 0, got $(c.expansion)"))
+    return nothing
+end
+
+@testitem "validate QuantileCover" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(QuantileCover(n_intervals=1, expansion=0.25))
+    @test_throws MapperArgumentError validate(QuantileCover(n_intervals=10, expansion=-0.1))
+    @test isnothing(validate(QuantileCover(n_intervals=10, expansion=0.25)))
+end
+
 @testitem "quantile_cover" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

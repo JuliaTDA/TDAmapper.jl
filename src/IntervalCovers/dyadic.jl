@@ -90,6 +90,23 @@ function _bisect!(leaves, x, a, b, depth, max_depth, min_points)
     _bisect!(leaves, x, mid, b, depth + 1, max_depth, min_points)
 end
 
+function TDAmapper.validate(c::DyadicCover)
+    c.max_depth >= 1 || throw(MapperArgumentError("DyadicCover — max_depth must be ≥ 1, got $(c.max_depth)"))
+    c.min_points >= 1 || throw(MapperArgumentError("DyadicCover — min_points must be ≥ 1, got $(c.min_points)"))
+    c.expansion >= 0 || throw(MapperArgumentError("DyadicCover — expansion must be ≥ 0, got $(c.expansion)"))
+    return nothing
+end
+
+@testitem "validate DyadicCover" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(DyadicCover(max_depth=0, min_points=10, expansion=0.25))
+    @test_throws MapperArgumentError validate(DyadicCover(max_depth=5, min_points=0, expansion=0.25))
+    @test_throws MapperArgumentError validate(DyadicCover(max_depth=5, min_points=10, expansion=-0.1))
+    @test isnothing(validate(DyadicCover(max_depth=5, min_points=10, expansion=0.25)))
+end
+
 @testitem "dyadic_cover" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

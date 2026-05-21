@@ -108,6 +108,23 @@ function adaptive_cover(
     end
 end
 
+function TDAmapper.validate(c::AdaptiveCover)
+    c.n_intervals > 1 || throw(MapperArgumentError("AdaptiveCover — n_intervals must be > 1, got $(c.n_intervals)"))
+    c.expansion >= 0 || throw(MapperArgumentError("AdaptiveCover — expansion must be ≥ 0, got $(c.expansion)"))
+    c.n_bins >= c.n_intervals || throw(MapperArgumentError("AdaptiveCover — n_bins must be ≥ n_intervals, got n_bins=$(c.n_bins) < n_intervals=$(c.n_intervals)"))
+    return nothing
+end
+
+@testitem "validate AdaptiveCover" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(AdaptiveCover(n_intervals=1, expansion=0.25, n_bins=100))
+    @test_throws MapperArgumentError validate(AdaptiveCover(n_intervals=10, expansion=-0.1, n_bins=100))
+    @test_throws MapperArgumentError validate(AdaptiveCover(n_intervals=10, expansion=0.25, n_bins=5))
+    @test isnothing(validate(AdaptiveCover(n_intervals=10, expansion=0.25, n_bins=100)))
+end
+
 @testitem "adaptive_cover" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

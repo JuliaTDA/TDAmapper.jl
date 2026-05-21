@@ -144,6 +144,26 @@ function epsilon_ball(X::MetricSpace, L::Vector{<:Integer}; epsilon::Real=1, met
     return EpsilonBall(X=X, L=L, epsilon=epsilon, metric=metric)()
 end
 
+function TDAmapper.validate(c::EpsilonBall)
+    c.epsilon > 0 || throw(MapperArgumentError("EpsilonBall — epsilon must be > 0, got $(c.epsilon)"))
+    isempty(c.L) && throw(MapperArgumentError("EpsilonBall — L must not be empty"))
+    c.L ⊆ eachindex(c.X) || throw(MapperArgumentError("EpsilonBall — all L indices must be in eachindex(X), got out-of-bounds indices: $(filter(i -> i ∉ eachindex(c.X), c.L))"))
+    return nothing
+end
+
+@testitem "validate EpsilonBall" begin
+    using TDAmapper
+    using TDAmapper.DomainCovers
+
+    X = [1, 2, 3] .|> float |> EuclideanSpace
+
+    @test_throws MapperArgumentError validate(EpsilonBall(X=X, L=[1, 2], epsilon=0.0))
+    @test_throws MapperArgumentError validate(EpsilonBall(X=X, L=[1, 2], epsilon=-1.0))
+    @test_throws MapperArgumentError validate(EpsilonBall(X=X, L=Int[], epsilon=1.0))
+    @test_throws MapperArgumentError validate(EpsilonBall(X=X, L=[4], epsilon=1.0))
+    @test isnothing(validate(EpsilonBall(X=X, L=[1, 2, 3], epsilon=1.0)))
+end
+
 @testitem "EpsilonBall" begin
     using TDAmapper
     using TDAmapper.DomainCovers

@@ -17,6 +17,10 @@ export Graph
 
 import Base.Threads.@threads
 
+# Error types and validate interface
+include("errors.jl")
+export MapperArgumentError, MapperDomainError, validate
+
 # Type alias for coverings
 const Covering = Vector{Vector{Int}}
 export Covering

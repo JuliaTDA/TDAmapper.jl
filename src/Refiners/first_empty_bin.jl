@@ -75,6 +75,20 @@ function (r::FirstEmptyBin)(X::MetricSpace)
     CL.cutree(hc, h=cutoff)
 end
 
+function TDAmapper.validate(r::FirstEmptyBin)
+    r.num_bins >= 2 || throw(MapperArgumentError("FirstEmptyBin — num_bins must be >= 2, got $(r.num_bins)"))
+    return nothing
+end
+
+@testitem "validate FirstEmptyBin" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test_throws MapperArgumentError validate(FirstEmptyBin(num_bins=1))
+    @test_throws MapperArgumentError validate(FirstEmptyBin(num_bins=0))
+    @test isnothing(validate(FirstEmptyBin(num_bins=2)))
+    @test isnothing(validate(FirstEmptyBin(num_bins=10)))
+end
+
 @testitem "FirstEmptyBin refiner" begin
     using TDAmapper
     using TDAmapper.Refiners

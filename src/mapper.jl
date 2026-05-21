@@ -45,6 +45,9 @@ function mapper(
     R::Refiners.AbstractRefiner,
     N::Nerves.AbstractNerve
 )
+    validate(C)
+    validate(R)
+    validate(N)
     raw_cover = make_cover(C)
     cover = refine_cover(X, raw_cover, R)
     g = make_graph(X, cover, N)

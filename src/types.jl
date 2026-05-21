@@ -51,7 +51,7 @@ using TDAmapper
 - [`generic_mapper`](@ref): Function that creates generalized mapper objects
 - [`BallMapper`](@ref): BallMapper implementation
 """
-@kwdef struct Mapper{S<:MetricSpace, G<:AbstractGraph} <: AbstractMapper
+@kwdef struct Mapper{S<:MetricSpace, G} <: AbstractMapper
     X::S
     C::Covering
     g::G
@@ -101,7 +101,11 @@ Prints a brief summary including the number of vertices and edges in the mapper 
 ```
 """
 function Base.show(io::IO, M::AbstractMapper)
-    print(io, "Mapper graph with $(Graphs.nv(M.g)) vertices and $(Graphs.ne(M.g)) edges")
+    try
+        print(io, "Mapper graph with $(Graphs.nv(M.g)) vertices and $(Graphs.ne(M.g)) edges")
+    catch
+        print(io, "Mapper with $(typeof(M.g))")
+    end
 end
 
 @testitem "Mapper types" begin

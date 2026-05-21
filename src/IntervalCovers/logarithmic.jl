@@ -82,6 +82,21 @@ function logarithmic_cover(
     end
 end
 
+function TDAmapper.validate(c::LogarithmicCover)
+    c.n_intervals > 1 || throw(MapperArgumentError("LogarithmicCover — n_intervals must be > 1, got $(c.n_intervals)"))
+    c.expansion >= 0 || throw(MapperArgumentError("LogarithmicCover — expansion must be ≥ 0, got $(c.expansion)"))
+    return nothing
+end
+
+@testitem "validate LogarithmicCover" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(LogarithmicCover(n_intervals=1, expansion=0.25))
+    @test_throws MapperArgumentError validate(LogarithmicCover(n_intervals=10, expansion=-0.1))
+    @test isnothing(validate(LogarithmicCover(n_intervals=10, expansion=0.25)))
+end
+
 @testitem "logarithmic_cover" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

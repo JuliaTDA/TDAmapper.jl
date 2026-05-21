@@ -98,4 +98,10 @@ export KMeans
 include("kmedoids.jl")
 export KMedoids
 
+include("optics.jl")
+export OPTICSRefiner
+
+include("spectral.jl")
+export SpectralRefiner
+
 end

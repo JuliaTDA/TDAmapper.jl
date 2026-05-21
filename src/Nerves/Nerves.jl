@@ -25,7 +25,9 @@ All concrete nerve types must implement:
 module Nerves
 
 using MetricSpaces
-using ..TDAmapper: Covering
+using TestItems
+import ..TDAmapper
+using ..TDAmapper: Covering, MapperArgumentError
 
 """
     AbstractNerve
@@ -78,6 +80,8 @@ include("simple_nerve.jl")
 include("min_count_nerve.jl")
 include("percentage_nerve.jl")
 include("jaccard_nerve.jl")
+include("simplicial_complex.jl")
+include("simplicial_nerve.jl")
 
 export AbstractNerve,
     GraphNerve,
@@ -85,6 +89,9 @@ export AbstractNerve,
     MinCountNerve,
     PercentageNerve,
     JaccardNerve,
+    SimplicialComplex,
+    SimplicialNerve,
+    n_vertices, n_edges, n_triangles, dim,
     make_graph
 
 end # module

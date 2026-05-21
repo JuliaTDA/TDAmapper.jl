@@ -42,3 +42,20 @@ function (cl::DBscan)(X::MetricSpace)
     ).assignments |>
     create_outlier_cluster
 end
+
+function TDAmapper.validate(r::DBscan)
+    r.radius > 0 || throw(MapperArgumentError("DBscan — radius must be > 0, got $(r.radius)"))
+    r.min_neighbors >= 1 || throw(MapperArgumentError("DBscan — min_neighbors must be >= 1, got $(r.min_neighbors)"))
+    r.min_cluster_size >= 1 || throw(MapperArgumentError("DBscan — min_cluster_size must be >= 1, got $(r.min_cluster_size)"))
+    return nothing
+end
+
+@testitem "validate DBscan" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test_throws MapperArgumentError validate(DBscan(radius=-1.0))
+    @test_throws MapperArgumentError validate(DBscan(radius=0.0))
+    @test_throws MapperArgumentError validate(DBscan(min_neighbors=0))
+    @test_throws MapperArgumentError validate(DBscan(min_cluster_size=0))
+    @test isnothing(validate(DBscan(radius=0.5, min_neighbors=2, min_cluster_size=1)))
+end

@@ -44,6 +44,20 @@ function (r::KMedoids)(X::MetricSpace)
     CL.kmedoids(d, k_actual; maxiter=r.maxiter).assignments
 end
 
+function TDAmapper.validate(r::KMedoids)
+    r.k >= 1 || throw(MapperArgumentError("KMedoids — k must be >= 1, got $(r.k)"))
+    return nothing
+end
+
+@testitem "validate KMedoids" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test_throws MapperArgumentError validate(KMedoids(k=0))
+    @test_throws MapperArgumentError validate(KMedoids(k=-1))
+    @test isnothing(validate(KMedoids(k=1)))
+    @test isnothing(validate(KMedoids(k=5)))
+end
+
 @testitem "KMedoids refiner" begin
     using TDAmapper
     using TDAmapper.Refiners

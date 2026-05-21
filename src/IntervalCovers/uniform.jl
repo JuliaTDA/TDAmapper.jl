@@ -100,6 +100,21 @@ function uniform(
     return [Interval(i - radius, i + radius) for i ∈ division]
 end
 
+function TDAmapper.validate(c::Uniform)
+    c.length > 1 || throw(MapperArgumentError("Uniform — length must be > 1, got $(c.length)"))
+    c.expansion >= 0 || throw(MapperArgumentError("Uniform — expansion must be ≥ 0, got $(c.expansion)"))
+    return nothing
+end
+
+@testitem "validate Uniform" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(Uniform(length=1, expansion=0.5))
+    @test_throws MapperArgumentError validate(Uniform(length=10, expansion=-0.1))
+    @test isnothing(validate(Uniform(length=10, expansion=0.25)))
+end
+
 @testitem "uniform" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

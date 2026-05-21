@@ -76,6 +76,21 @@ function manual_cover(
     end
 end
 
+function TDAmapper.validate(c::ManualCover)
+    isempty(c.intervals) && throw(MapperArgumentError("ManualCover — intervals must not be empty"))
+    issorted(c.intervals; by=iv -> iv.a) || throw(MapperArgumentError("ManualCover — intervals must be sorted by left endpoint"))
+    return nothing
+end
+
+@testitem "validate ManualCover" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers
+
+    @test_throws MapperArgumentError validate(ManualCover(Interval{Float64}[]))
+    @test_throws MapperArgumentError validate(ManualCover([Interval(2.0, 3.0), Interval(0.0, 1.0)]))
+    @test isnothing(validate(ManualCover([Interval(0.0, 1.5), Interval(1.0, 3.0)])))
+end
+
 @testitem "manual_cover" begin
     using TDAmapper
     using TDAmapper.IntervalCovers

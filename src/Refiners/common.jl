@@ -37,29 +37,29 @@ end
 """
     refine_cover(X::MetricSpace, C::Covering, R) -> Vector{Vector{Int}}
 
-Refines a given cover `C` of a metric space `X` using the specified refiner `R`. 
+Refines a given cover `C` of a metric space `X` using the specified refiner `R`.
 
 # Arguments
 - `X::MetricSpace`: The metric space containing the data points
-- `C::Covering`: The initial cover, represented as a collection of index sets  
+- `C::Covering`: The initial cover, represented as a collection of index sets
 - `R`: The refiner or clustering method to apply to each subset
 
 # Returns
-- `Vector{Vector{Int}}`: A refined cover as a vector of integer index sets, 
+- `Vector{Vector{Int}}`: A refined cover as a vector of integer index sets,
   with outliers handled appropriately
 
 # Description
-For each subset of indices in the cover, the function applies the refiner to 
+For each subset of indices in the cover, the function applies the refiner to
 partition the subset into clusters. The process works as follows:
 
-1. For each cover element `ids` in `C`:
-   - Extract the subset `X[ids]` 
+1. For each cover element `ids` in `C` (processed in parallel via `Threads.@threads`):
+   - Extract the subset `X[ids]`
    - Apply the refiner `R(X[ids])` to get cluster assignments
    - Map cluster assignments back to original indices
-2. Flatten all clusters into a single vector of index sets
+2. Flatten all per-element cluster vectors into a single vector of index sets
 3. Handle outliers (points assigned to cluster 0) by creating a separate outlier cluster
 
-Any outliers (typically marked with 0 by some clustering methods) are reassigned 
+Any outliers (typically marked with 0 by some clustering methods) are reassigned
 to a separate outlier cluster using `create_outlier_cluster`.
 
 # Examples
@@ -80,25 +80,26 @@ refined_cover = refine_cover(X, C, R)
 - [`AbstractRefiner`](@ref): Interface for refiner implementations
 """
 function refine_cover(X::MetricSpace, C::Covering, R)
-    # Preallocate result vector
-    result = Vector{Vector{Int}}()
+    # Pre-allocate one slot per cover element; each thread writes to its own slot
+    per_element = Vector{Vector{Vector{Int}}}(undef, length(C))
 
-    for ids in C
-        isempty(ids) && continue
+    Threads.@threads for i in eachindex(C)
+        ids = C[i]
+        if isempty(ids)
+            per_element[i] = Vector{Vector{Int}}()
+        else
+            # Get cluster assignments for points in this cover element
+            cluster_ids = R(X[ids])
 
-        # Get cluster assignments for points in this cover element
-        cluster_ids = R(X[ids])
+            # Get unique cluster IDs (unique preserves first occurrence order)
+            unique_clusters = unique(cluster_ids)
 
-        # Get unique cluster IDs (no need to sort - unique preserves first occurrence order)
-        unique_clusters = unique(cluster_ids)
-
-        # Map each cluster back to original indices
-        for cl_id in unique_clusters
-            cluster_indices = ids[findall(==(cl_id), cluster_ids)]
-            push!(result, cluster_indices)
+            # Map each cluster back to original indices
+            per_element[i] = [ids[findall(==(cl_id), cluster_ids)] for cl_id in unique_clusters]
         end
     end
 
-    # Handle outliers (cluster 0 in some methods)
+    # Flatten per-element results and handle outliers (cluster 0 in some methods)
+    result = reduce(vcat, per_element)
     create_outlier_cluster(result)
 end

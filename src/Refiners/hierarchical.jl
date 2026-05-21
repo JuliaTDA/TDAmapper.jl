@@ -82,6 +82,26 @@ Ward's method merges clusters to minimize the total within-cluster variance.
 """
 WardLinkage(; threshold=0.5, metric=Euclidean()) = Hierarchical(linkage=:ward, threshold=threshold, metric=metric)
 
+const _VALID_LINKAGES = (:single, :complete, :average, :ward)
+
+function TDAmapper.validate(r::Hierarchical)
+    r.threshold > 0 || throw(MapperArgumentError("Hierarchical — threshold must be > 0, got $(r.threshold)"))
+    r.linkage in _VALID_LINKAGES || throw(MapperArgumentError("Hierarchical — linkage must be one of $(_VALID_LINKAGES), got $(r.linkage)"))
+    return nothing
+end
+
+@testitem "validate Hierarchical" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test_throws MapperArgumentError validate(Hierarchical(threshold=-1.0))
+    @test_throws MapperArgumentError validate(Hierarchical(threshold=0.0))
+    @test_throws MapperArgumentError validate(Hierarchical(linkage=:median))
+    @test isnothing(validate(Hierarchical(linkage=:single, threshold=0.5)))
+    @test isnothing(validate(Hierarchical(linkage=:complete, threshold=1.0)))
+    @test isnothing(validate(Hierarchical(linkage=:average, threshold=0.1)))
+    @test isnothing(validate(Hierarchical(linkage=:ward, threshold=2.0)))
+end
+
 @testitem "Hierarchical refiner" begin
     using TDAmapper
     using TDAmapper.Refiners

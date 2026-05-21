@@ -38,6 +38,20 @@ function (r::KMeans)(X::MetricSpace)
     CL.kmeans(as_matrix(X), k_actual; distance=r.metric, maxiter=r.maxiter).assignments
 end
 
+function TDAmapper.validate(r::KMeans)
+    r.k >= 1 || throw(MapperArgumentError("KMeans — k must be >= 1, got $(r.k)"))
+    return nothing
+end
+
+@testitem "validate KMeans" begin
+    using TDAmapper
+    using TDAmapper.Refiners
+    @test_throws MapperArgumentError validate(KMeans(k=0))
+    @test_throws MapperArgumentError validate(KMeans(k=-1))
+    @test isnothing(validate(KMeans(k=1)))
+    @test isnothing(validate(KMeans(k=5)))
+end
+
 @testitem "KMeans refiner" begin
     using TDAmapper
     using TDAmapper.Refiners

@@ -60,4 +60,7 @@ export AbstractImageCover
 include("r1.jl")
 export R1Cover, make_cover
 
+include("r2.jl")
+export R2Cover
+
 end # module
