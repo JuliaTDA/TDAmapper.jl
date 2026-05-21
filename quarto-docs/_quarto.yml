@@ -18,6 +18,10 @@ website:
           - ballmapper.qmd
           - generalization.qmd
 
+      - section: "Tutorials"
+        contents:
+          - tutorials.qmd
+
       - section: "Examples"
         contents:
           - examples/diabetes.qmd

@@ -7,7 +7,7 @@ title: "Start here"
 In Julia, type 
 
 ```
-] add https://github.com/JuliaTDA/TDAmapper.jl https://github.com/JuliaTDA/GeometricDatasets.jl
+] add https://github.com/JuliaTDA/TDAmapper.jl
 ```
 
 The `]` character mark the command to be executed in Julia package mode.

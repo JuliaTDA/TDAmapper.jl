@@ -1,7 +1,542 @@
 ---
-title: "Untitled"
+title: "TDAmapper.jl: A Complete Guide"
 ---
 
-# a
+::: {.callout-note}
+This tutorial assumes basic familiarity with Julia. No prior TDA knowledge is required.
+:::
 
-## b
+## The Three-Stage Pipeline {#sec-pipeline}
+
+Every mapper computation follows the same three-stage pipeline:
+
+```
+mapper(X, cover, refiner, nerve)
+     ↓              ↓             ↓
+  Stage 1       Stage 2        Stage 3
+  Cover         Refine         Nerve graph
+  ─────────     ──────────     ───────────
+  Partition     Cluster each   Nodes = clusters
+  data into     cover element  Edges = overlap
+  overlapping   with a chosen
+  bins          algorithm
+```
+
+**Cover** — partition the data into overlapping groups via a filter $f: X \to \mathbb{R}$.
+**Refine** — cluster each group independently.
+**Nerve** — one node per cluster; edge between any two nodes that share a point.
+
+---
+
+## Setup {#sec-setup}
+
+```{julia}
+using TDAplots, CairoMakie
+using MetricSpaces.Datasets           # sphere, torus, …
+using TDAmapper.ImageCovers           # R1Cover, R2Cover
+using TDAmapper.IntervalCovers        # Uniform, QuantileCover, …
+using TDAmapper.Refiners              # DBscan, KMeans, …
+using TDAmapper.Nerves                # SimpleNerve, SimplicialNerve, …
+
+import Random; Random.seed!(42)
+
+# Helper: draw a mapper graph into a pre-existing Makie Axis.
+# Returns the scatter plot object so the caller can attach a Colorbar.
+function mapper_panel!(ax, g, positions, sizes, values;
+                       colormap = :viridis, title = "", edge_color = :lightgray)
+    n = length(positions)
+    pts = eltype(positions)[]
+    for i in 1:n, j in g.fadjlist[i]
+        j ≤ i && continue
+        push!(pts, positions[i], positions[j])
+    end
+    isempty(pts) || linesegments!(ax, pts; color = edge_color, linewidth = 1.5)
+    lo, hi = extrema(values)
+    lo ≈ hi && (lo -= 1.0; hi += 1.0)
+    sc = scatter!(ax, positions; markersize = sizes, color = values,
+                  colormap = colormap, colorrange = (lo, hi))
+    ax.title = title
+    hidedecorations!(ax; label = false)
+    hidespines!(ax)
+    return sc
+end
+```
+
+---
+
+## 1. Your First Mapper {#sec-first}
+
+We start with a classic: 1 000 points on a noisy circle.
+
+```{julia}
+#| fig-cap: "Left: the raw point cloud, coloured by x-coordinate. Right: its Mapper graph."
+
+X = sphere(1_000)           # 1000 points on a noisy unit circle in 2D
+fv = first.(X)              # filter = x-coordinate
+
+# Build the mapper
+C  = R1Cover(fv, Uniform(length=10, expansion=0.3))
+M  = classical_mapper(X, C, DBscan(radius=0.1))
+
+println("Nodes: ", length(M.C), "   Edges: ", length(M.g.fadjlist))
+
+# Side-by-side: raw cloud + mapper graph
+fig = Figure(size=(900, 380))
+
+# Left: scatter of the raw data
+ax1 = Axis(fig[1, 1], title="Point cloud (n=1 000)")
+scatter!(ax1, [p[1] for p in X], [p[2] for p in X];
+         color=fv, colormap=:viridis, markersize=4)
+hidedecorations!(ax1); hidespines!(ax1)
+
+# Right: mapper graph (Spring layout, nodes sized by cluster size)
+pos   = layout_spring(M)
+sizes = rescale(map(length, M.C); min=12, max=55)
+ax2   = Axis(fig[1, 2], title="Mapper graph")
+sc    = mapper_panel!(ax2, M.g, pos, sizes, node_colors(M, fv); title="")
+Colorbar(fig[1, 3], sc; label="x-coordinate")
+
+fig
+```
+
+The mapper recovers the circular shape of the data: the graph is a cycle.
+
+---
+
+## 2. The Real Power: Same Nodes, Different Colors {#sec-colors}
+
+The mapper graph is a fixed skeleton. The colours are *data you project onto it*.
+The same set of nodes can answer many different questions simply by changing what quantity you average per node.
+
+```{julia}
+#| fig-cap: "Four views of the same mapper graph, each coloured by a different quantity. The skeleton (positions and edges) is identical in all four panels."
+
+# Four per-point quantities
+fv_x   = [p[1] for p in X]
+fv_y   = [p[2] for p in X]
+fv_r   = [sqrt(p[1]^2 + p[2]^2) for p in X]           # distance from origin
+fv_ang = [atan(p[2], p[1]) * 180 / π for p in X]       # angle in degrees
+
+quantities = [
+    (node_colors(M, fv_x),   :RdBu,    "x-coordinate"),
+    (node_colors(M, fv_y),   :plasma,  "y-coordinate"),
+    (node_colors(M, fv_r),   :viridis, "radius"),
+    (node_colors(M, fv_ang), :hsv,     "angle (°)"),
+]
+
+# Freeze positions so all panels are spatially aligned
+pos   = layout_spring(M)
+sizes = rescale(map(length, M.C); min=12, max=55)
+
+fig = Figure(size=(1000, 900))
+for (k, (vals, cmap, label)) in enumerate(quantities)
+    row, col = divrem(k - 1, 2)
+    ax = Axis(fig[row + 1, 2col + 1], title=label)
+    sc = mapper_panel!(ax, M.g, pos, sizes, vals; colormap=cmap)
+    Colorbar(fig[row + 1, 2col + 2], sc)
+end
+fig
+```
+
+::: {.callout-tip}
+The *x* and *y* panels show a smooth gradient cycling around the circle — confirming the graph is topologically $S^1$.
+The *radius* panel is nearly uniform (all nodes ≈ 1 from the origin).
+The *angle* panel shows the full $[-180°, 180°]$ range wrapping around.
+:::
+
+### Categorical coloring
+
+When points carry labels (e.g. experimental groups, species, clusters from another method), use string vectors — TDAplots shows a legend automatically:
+
+```{julia}
+#| fig-cap: "Categorical coloring: upper vs lower half of the circle."
+
+labels = [p[2] ≥ 0 ? "upper" : "lower" for p in X]
+
+fig = mapper_plot(M;
+    node_positions = pos,
+    node_size      = sizes,
+    node_values    = node_colors(M, labels))
+fig
+```
+
+---
+
+## 3. The Filter Function Shapes the Graph {#sec-filter}
+
+The filter $f$ is the **most important design choice** — it determines which topological features you highlight. Here we compare three filters on a 3D torus.
+
+```{julia}
+X3 = torus(2_000)   # 2000 points on a 3D torus
+
+fv_x3 = [p[1] for p in X3]   # left-right axis
+fv_y3 = [p[2] for p in X3]   # depth axis
+fv_z3 = [p[3] for p in X3]   # height axis
+
+filters = [
+    (fv_x3, "Filter: x-axis"),
+    (fv_y3, "Filter: y-axis"),
+    (fv_z3, "Filter: z-axis"),
+]
+
+fig = Figure(size=(1100, 360))
+for (k, (flt, title)) in enumerate(filters)
+    C_k = R1Cover(flt, Uniform(length=12, expansion=0.4))
+    M_k = classical_mapper(X3, C_k, DBscan(radius=0.3))
+    pos_k   = layout_spring(M_k)
+    sizes_k = rescale(map(length, M_k.C); min=8, max=45)
+    vals_k  = node_colors(M_k, flt)
+
+    ax = Axis(fig[1, 2k-1], title=title)
+    sc = mapper_panel!(ax, M_k.g, pos_k, sizes_k, vals_k; colormap=:hsv)
+    Colorbar(fig[1, 2k], sc)
+end
+fig
+```
+
+The three filters slice the same torus differently, each revealing a different "hole":
+
+- **x** and **y** filters produce a thick loop (one hole of the torus)
+- **z** filter produces a thin loop (the other hole)
+
+### Seeing the raw torus first
+
+```{julia}
+#| fig-cap: "The torus coloured by z-coordinate. The Mapper graph (z-filter) summarises this structure as a circle."
+
+fig = Figure(size=(600, 550))
+ax = Axis3(fig[1, 1], title="Torus (colored by z)")
+scatter!(ax,
+    [p[1] for p in X3], [p[2] for p in X3], [p[3] for p in X3];
+    color=fv_z3, colormap=:hsv, markersize=3)
+Colorbar(fig[1, 2]; colormap=:hsv, colorrange=extrema(fv_z3), label="z")
+fig
+```
+
+---
+
+## 4. Clustering Algorithm Comparison {#sec-clustering}
+
+The *refiner* controls how finely each bin is split. A coarser refiner produces fewer nodes; a finer one captures more local structure.
+
+```{julia}
+#| fig-cap: "Same circle + same cover, four different clustering strategies. Node size encodes cluster membership count."
+
+refiners = [
+    (Trivial(),                       "Trivial\n(no clustering)"),
+    (DBscan(radius=0.1),              "DBscan\n(ε=0.1)"),
+    (DBscan(radius=0.3),              "DBscan\n(ε=0.3, coarser)"),
+    (WardLinkage(threshold=0.3),      "Ward linkage\n(h=0.3)"),
+]
+
+C_base = R1Cover(fv, Uniform(length=10, expansion=0.35))
+
+fig = Figure(size=(1000, 450))
+for (k, (R_k, label)) in enumerate(refiners)
+    M_k     = classical_mapper(X, C_base, R_k)
+    pos_k   = layout_spring(M_k)
+    sizes_k = rescale(map(length, M_k.C); min=8, max=50)
+    vals_k  = node_colors(M_k, fv)
+
+    col = 2k - 1
+    ax = Axis(fig[1, col], title=label * "\n($(length(M_k.C)) nodes)")
+    sc = mapper_panel!(ax, M_k.g, pos_k, sizes_k, vals_k; colormap=:RdBu)
+    Colorbar(fig[1, col + 1], sc)
+end
+fig
+```
+
+::: {.callout-note}
+**Trivial** treats each bin as one cluster (no refinement). DBscan with a small radius splits bins further — the number of nodes grows. A large DBscan radius merges nearby points and produces fewer nodes.
+:::
+
+---
+
+## 5. Graph Layout Algorithms {#sec-layouts}
+
+The layout algorithm controls where nodes are *drawn*, not the graph's topology. Three philosophically different strategies:
+
+```{julia}
+#| fig-cap: "The same mapper graph placed by three different layout algorithms."
+
+M_lay = classical_mapper(X, R1Cover(fv, Uniform(length=12, expansion=0.35)),
+                         DBscan(radius=0.1))
+vals_lay  = node_colors(M_lay, fv)
+sizes_lay = rescale(map(length, M_lay.C); min=10, max=50)
+
+layouts_named = [
+    (layout_spring(M_lay),     "Spring\n(force-directed)"),
+    (layout_landmarks(M_lay),  "Landmarks\n(preserves geometry)"),
+    (layout_stress(M_lay),     "Stress\n(graph-distance aware)"),
+]
+
+fig = Figure(size=(1050, 380))
+for (k, (pos_k, label)) in enumerate(layouts_named)
+    ax = Axis(fig[1, 2k-1], title=label)
+    sc = mapper_panel!(ax, M_lay.g, pos_k, sizes_lay, vals_lay; colormap=:viridis)
+    Colorbar(fig[1, 2k], sc)
+end
+fig
+```
+
+The **Landmark** layout is particularly powerful: nodes are placed at the *centroid of their data points*, so the graph inherits the geometry of the original point cloud. For a circle, this layout makes the ring shape immediately visible.
+
+### Metric-aware layouts
+
+For higher-dimensional data, dimensionality-reduction layouts often produce cleaner pictures:
+
+```{julia}
+#| fig-cap: "MDS layout places nodes according to centroid distances — often more interpretable for high-dimensional data."
+
+pos_mds = layout_mds(M_lay)
+fig = mapper_plot(M_lay;
+    node_positions = pos_mds,
+    node_values    = vals_lay,
+    node_size      = sizes_lay,
+    colormap       = :viridis)
+fig
+```
+
+---
+
+## 6. Ball Mapper {#sec-ball}
+
+The ball mapper skips the filter entirely. Landmark points act as "centres" and an $\varepsilon$-ball around each one defines a cover element. It is faster and requires no domain knowledge about a good filter.
+
+```{julia}
+#| fig-cap: "Ball mapper of the circle. Nodes are placed at the landmark coordinates (layout_landmarks)."
+
+X_bm = sphere(2_000)
+L    = farthest_points_sample_ids(X_bm, 80)   # 80 well-spread landmarks
+M_bm = ball_mapper(X_bm, L, 0.25)
+
+vals_bm  = node_colors(M_bm, [p[1] for p in X_bm])
+sizes_bm = rescale(map(length, M_bm.C); min=8, max=40)
+
+# layout_landmarks places each node at the centroid of its cover element
+pos_bm = layout_landmarks(M_bm)
+
+fig = mapper_plot(M_bm;
+    node_positions = pos_bm,
+    node_values    = vals_bm,
+    node_size      = sizes_bm,
+    colormap       = :RdBu)
+fig
+```
+
+### Ball mapper on a torus
+
+```{julia}
+#| fig-cap: "Ball mapper of a 3D torus, coloured by z-coordinate. The circular structure is preserved."
+
+X_bt  = torus(3_000)
+L_bt  = farthest_points_sample_ids(X_bt, 150)
+M_bt  = ball_mapper(X_bt, L_bt, 0.5)
+
+fv_bt    = [p[3] for p in X_bt]
+vals_bt  = node_colors(M_bt, fv_bt)
+sizes_bt = rescale(map(length, M_bt.C); min=6, max=35)
+pos_bt   = layout_landmarks(M_bt; dim=2)   # project 3D centroids → 2D
+
+fig = mapper_plot(M_bt;
+    node_positions = pos_bt,
+    node_values    = vals_bt,
+    node_size      = sizes_bt,
+    colormap       = :hsv)
+fig
+```
+
+---
+
+## 7. 2D Mapper {#sec-2d}
+
+When one filter is not enough, use two. The 2D mapper creates a grid of overlapping bins in 2D filter space — recovering structure that a single filter misses.
+
+```{julia}
+#| fig-cap: "2D mapper of the torus, using (x, z) as a joint filter. Coloured by z."
+
+X_2d = torus(2_000)
+f2   = p -> (p[1], p[3])    # x and z coordinates
+
+M_2d = classical_mapper(X_2d, f2,
+    Uniform(length=7, expansion=0.4),
+    Uniform(length=7, expansion=0.4),
+    DBscan(radius=0.3))
+
+fv_2d    = [p[3] for p in X_2d]
+vals_2d  = node_colors(M_2d, fv_2d)
+sizes_2d = rescale(map(length, M_2d.C); min=5, max=40)
+pos_2d   = layout_spring(M_2d)
+
+println("2D mapper: ", length(M_2d.C), " nodes")
+
+fig = mapper_plot(M_2d;
+    node_positions = pos_2d,
+    node_values    = vals_2d,
+    node_size      = sizes_2d,
+    colormap       = :hsv)
+fig
+```
+
+---
+
+## 8. Comparing Nerve Types {#sec-nerves}
+
+The nerve controls which pairs of nodes are connected. A stricter nerve produces fewer (but more meaningful) edges.
+
+```{julia}
+#| fig-cap: "Same mapper, three different nerve strategies. Stricter nerves prune weak connections."
+
+nerves = [
+    (SimpleNerve(),    "SimpleNerve\n(any shared point)"),
+    (MinCountNerve(5), "MinCountNerve\n(≥5 shared points)"),
+    (PercentageNerve(0.25), "PercentageNerve\n(≥25% overlap)"),
+]
+
+C_n = R1Cover(fv, Uniform(length=12, expansion=0.35))
+pos_ref = nothing
+
+fig = Figure(size=(1050, 380))
+for (k, (N_k, label)) in enumerate(nerves)
+    M_k = classical_mapper(X, C_n, DBscan(radius=0.1), N_k)
+    # Re-use Spring positions from the SimpleNerve graph for visual alignment
+    pos_k = (k == 1) ? layout_spring(M_k) : layout_spring(M_k)
+    isnothing(pos_ref) && (pos_ref = pos_k)
+    sizes_k = rescale(map(length, M_k.C); min=10, max=50)
+    vals_k  = node_colors(M_k, fv)
+
+    n_edges = sum(length(v) for v in M_k.g.fadjlist) ÷ 2
+    ax = Axis(fig[1, 2k-1], title=label * "\n($(length(M_k.C)) nodes, $n_edges edges)")
+    sc = mapper_panel!(ax, M_k.g, pos_k, sizes_k, vals_k; colormap=:RdBu)
+    Colorbar(fig[1, 2k], sc)
+end
+fig
+```
+
+### SimplicialNerve: beyond graphs
+
+The `SimplicialNerve` builds the full simplicial complex: triangles appear when three nodes all mutually overlap.
+
+```{julia}
+M_sc = classical_mapper(X, C_n, DBscan(radius=0.1), SimplicialNerve(2))
+SC   = M_sc.g
+println("Vertices:  ", n_vertices(SC))
+println("Edges:     ", n_edges(SC))
+println("Triangles: ", n_triangles(SC))
+```
+
+---
+
+## 9. Worked Example: Anatomy of a Torus {#sec-example}
+
+We now build a full analysis of the torus, showing every visualization capability.
+
+```{julia}
+X_full = torus(2_000)
+fv_z_full = [p[3] for p in X_full]
+
+C_full = R1Cover(fv_z_full, Uniform(length=14, expansion=0.40))
+M_full = classical_mapper(X_full, C_full, DBscan(radius=0.3))
+println("Nodes: ", length(M_full.C), "  Edges: ", sum(length.(M_full.g.fadjlist)) ÷ 2)
+```
+
+```{julia}
+#| fig-cap: "Torus anatomy: six views of the same mapper graph. Rows: metric layout (MDS) vs topology layout (Spring). Columns: coloured by x, y, z."
+
+pos_mds_f  = layout_mds(M_full)
+pos_spr_f  = layout_spring(M_full)
+sizes_f    = rescale(map(length, M_full.C); min=8, max=42)
+
+coords_f = [
+    (node_colors(M_full, [p[1] for p in X_full]), :RdBu,   "x-axis"),
+    (node_colors(M_full, [p[2] for p in X_full]), :plasma,  "y-axis"),
+    (node_colors(M_full, fv_z_full),              :hsv,    "z-axis"),
+]
+
+fig = Figure(size=(1050, 700))
+for (col, (vals_f, cmap, coord_label)) in enumerate(coords_f)
+    # Row 1: MDS layout
+    ax1 = Axis(fig[1, 2col-1], title="MDS layout · $coord_label")
+    sc1 = mapper_panel!(ax1, M_full.g, pos_mds_f, sizes_f, vals_f; colormap=cmap)
+    Colorbar(fig[1, 2col], sc1)
+
+    # Row 2: Spring layout
+    ax2 = Axis(fig[2, 2col-1], title="Spring layout · $coord_label")
+    sc2 = mapper_panel!(ax2, M_full.g, pos_spr_f, sizes_f, vals_f; colormap=cmap)
+    Colorbar(fig[2, 2col], sc2)
+end
+fig
+```
+
+---
+
+## Reference {#sec-reference}
+
+### IntervalCovers
+
+| Type | Key params | Best for |
+|------|-----------|----------|
+| `Uniform(length, expansion)` | `length`, `expansion` | Default |
+| `QuantileCover(n_intervals, expansion)` | `n_intervals` | Skewed data |
+| `AdaptiveCover(n_intervals, expansion)` | `n_intervals` | Variable density |
+| `LogarithmicCover(n_intervals, expansion)` | `n_intervals` | Log-scale data |
+| `DyadicCover(max_depth, expansion)` | `max_depth` | Multiscale |
+| `ManualCover(intervals)` | `intervals::Vector{Interval}` | Full control |
+
+### Refiners
+
+| Type | Key params | Notes |
+|------|-----------|-------|
+| `Trivial()` | — | No clustering |
+| `DBscan(radius)` | `radius`, `min_neighbors` | Automatic k; recommended |
+| `Hierarchical(linkage, threshold)` | threshold-based cut | `:single/:complete/:average/:ward` |
+| `SingleLinkage(threshold)` etc. | convenience wrappers | |
+| `FirstEmptyBin(num_bins)` | `num_bins` | Automatic cut |
+| `KMeans(k)` | `k` | Euclidean |
+| `KMedoids(k)` | `k`, `metric` | Metric-agnostic |
+| `OPTICSRefiner(min_neighbors)` | `min_neighbors` | Variable-density |
+| `SpectralRefiner(k, n_neighbors)` | `k`, `n_neighbors` | Non-convex clusters |
+
+### Nerves
+
+| Type | Constructor | Notes |
+|------|------------|-------|
+| `SimpleNerve()` | — | Default |
+| `MinCountNerve(n)` | positional `Int` | Require n shared points |
+| `PercentageNerve(p)` | positional `Float64` | Relative overlap |
+| `JaccardNerve(threshold)` | positional `Float64` | Jaccard similarity |
+| `SimplicialNerve(max_dim)` | positional `Int` (default 2) | Full complex |
+
+### TDAplots functions
+
+| Function | Purpose |
+|----------|---------|
+| `mapper_plot(M; ...)` | Full Figure from mapper |
+| `node_colors(M, v; f=mean)` | Aggregate per-point values to nodes |
+| `node_colors(M, v::Vector{String})` | Categorical node labels |
+| `layout_spring(M)` | Force-directed layout |
+| `layout_stress(M)` | Stress majorization |
+| `layout_landmarks(M)` | Centroid-based (geometry-preserving) |
+| `layout_mds(M)` | MDS on centroid distances |
+| `layout_umap(M)` | UMAP on centroid distances |
+| `layout_pca(M)` | PCA on centroid coordinates |
+| `metricspace_plot(X; ...)` | Scatter of raw point cloud |
+| `rescale(x; min, max)` | Rescale to [min, max] |
+
+### Constructing a mapper
+
+```julia
+# Classical (filter-based)
+M = classical_mapper(X, R1Cover(fv, Uniform(length=10, expansion=0.3)),
+                     DBscan(radius=0.1), SimpleNerve())
+
+# 2D filter
+M = classical_mapper(X, f, Uniform(length=8, expansion=0.4),
+                            Uniform(length=8, expansion=0.4))
+
+# Ball mapper
+M = ball_mapper(X, farthest_points_sample_ids(X, 80), 0.3)
+
+# Generic (any combination)
+M = mapper(X, cover, refiner, nerve)
+```

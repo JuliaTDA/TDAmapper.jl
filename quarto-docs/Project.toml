@@ -1,3 +1,5 @@
 [deps]
-GeometricDatasets = "b92f1397-7bd4-4d1a-aad5-e469f2dd85cb"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+MetricSpaces = "737298cd-3e4b-40c4-a4ce-863151543a8d"
 TDAmapper = "90314d98-8742-41ec-badb-bb392eb26b11"
+TDAplots = "a34ba9c9-258a-4d5b-bbaf-9af986d00e54"

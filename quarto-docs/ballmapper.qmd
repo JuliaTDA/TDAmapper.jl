@@ -35,24 +35,23 @@ The ball mapper then can be seen as the 1-skeleton of the Vietoris-Rips, but cre
 To exemplify, consider a circle
 
 ```{julia}
-using TDAmapper
-import GeometricDatasets as gd
+using TDAplots, CairoMakie
+using MetricSpaces.Datasets
 
-X = gd.sphere(1000, dim = 2);
+X = sphere(1000);
 ```
 
 Check that it is indeed a circle:
 
 ```{julia}
-using CairoMakie
-scatter(X)
+scatter([p[1] for p in X], [p[2] for p in X]; markersize=4)
 ```
 
-Now take $L$ as a hundred random points and let's create the ball mapper of $X$ with radius $\epsilon = 0.1$:
+Now take $L$ as a hundred farthest-point-sampled landmarks and let's create the ball mapper of $X$ with radius $\varepsilon = 0.25$:
 
 ```{julia}
-L = rand(1:1000, 100)
-mp = ball_mapper(X, L, ϵ = 0.5);
+L  = farthest_points_sample_ids(X, 100)
+mp = ball_mapper(X, L, 0.25);
 ```
 
 
