@@ -30,6 +30,10 @@ export Covering
 include("types.jl")
 export AbstractMapper, Mapper
 
+# Tables.jl integration (methods provided by the TDAmapperTablesExt extension)
+include("tables_interface.jl")
+export euclidean_space, node_statistics
+
 include("cover.jl")
 export AbstractCover, make_cover
 
