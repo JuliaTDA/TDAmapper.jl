@@ -69,6 +69,7 @@ end
 
 @testitem "classical_mapper" begin
     using TDAmapper
+    using MetricSpaces.Datasets: sphere
     using TDAmapper.ImageCovers, TDAmapper.Refiners, TDAmapper.IntervalCovers
     import Graphs
 

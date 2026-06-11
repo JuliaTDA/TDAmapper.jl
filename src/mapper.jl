@@ -57,6 +57,7 @@ end
 
 @testitem "mapper integration" begin
     using TDAmapper
+    using MetricSpaces.Datasets: sphere
     using TDAmapper.ImageCovers, TDAmapper.IntervalCovers
     using TDAmapper.Refiners, TDAmapper.Nerves
     using Graphs

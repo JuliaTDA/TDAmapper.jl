@@ -166,6 +166,7 @@ end
 
 @testitem "EpsilonBall" begin
     using TDAmapper
+    using MetricSpaces.Datasets: sphere
     using TDAmapper.DomainCovers
 
     X = [1, 2, 3] .|> float |> EuclideanSpace

@@ -2,6 +2,7 @@ using TDAmapper
 using TDAmapper.ImageCovers, TDAmapper.IntervalCovers, TDAmapper.Refiners, TDAmapper.Nerves
 using Test
 using TestItemRunner
+using MetricSpaces.Datasets: sphere
 using Graphs: nv, ne
 
 @run_package_tests

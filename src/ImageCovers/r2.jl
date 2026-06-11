@@ -14,6 +14,7 @@ Each grid cell is the intersection of one interval from cover1 and one from cove
 # Examples
 ```julia
 using TDAmapper
+using MetricSpaces.Datasets: sphere
 using TDAmapper.ImageCovers, TDAmapper.IntervalCovers
 
 X = sphere(100, dim=3)

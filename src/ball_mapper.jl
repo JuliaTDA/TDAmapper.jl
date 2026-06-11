@@ -45,6 +45,7 @@ end
 
 @testitem "ball_mapper" begin
     using TDAmapper
+    using MetricSpaces.Datasets: sphere
     using Graphs: nv, ne
 
     X = [1, 2, 3] .|> float |> EuclideanSpace
