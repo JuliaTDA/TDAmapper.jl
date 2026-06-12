@@ -14,6 +14,7 @@ using Reexport
 using TestItems
 using Graphs
 export Graph
+using ChainRulesCore
 
 import Base.Threads.@threads
 
@@ -60,5 +61,18 @@ export classical_mapper
 
 include("ball_mapper.jl")
 export ball_mapper
+
+# Differentiable Mapper (Phase 5 Tier G)
+include("differentiable/graph_persistence.jl")
+export persistence_pairs, persistence_diagram, total_persistence
+
+include("differentiable/soft_cover.jl")
+export soft_membership
+
+include("differentiable/filters.jl")
+export LinearFilter
+
+include("differentiable/soft_mapper.jl")
+export soft_mapper, SoftMapper, node_filtration, optimize_filter
 
 end # module
