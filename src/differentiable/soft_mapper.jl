@@ -92,3 +92,32 @@ end
     f_X = [10.0, 20.0, 5.0]
     @test node_filtration(members, f_X) == [15.0, 5.0]
 end
+
+@testitem "optimize_filter runs and moves the filter" begin
+    using TDAmapper
+    using TDAmapper.IntervalCovers: Uniform
+    using TDAmapper.Refiners: DBscan
+    using TDAmapper.Nerves: SimpleNerve
+    using Zygote, Optimisers       # triggers TDAmapperZygoteExt
+
+    # Tent (Λ) shape: two arms rising to a shared apex. Under the height filter
+    # DBscan splits the arms at low y (giving two minima) and merges them near
+    # the apex, so the mapper graph has nontrivial 0-dim persistence — the
+    # signal the filter optimization needs. (A monotone filter on featureless
+    # data gives total_persistence = 0 and hence no gradient; ordinary 0-dim
+    # persistence cannot see loops — that needs the deferred extended version.)
+    left  = [[t, t] for t in 0:0.05:1]
+    right = [[2 - t, t] for t in 0:0.05:1]
+    X = EuclideanSpace(vcat(left, right))
+
+    θ0 = [0.0, 1.0]                                # height (y) filter
+    out = optimize_filter(X, θ0;
+                          cover = Uniform(length = 8, expansion = 0.4),
+                          refiner = DBscan(radius = 0.3), nerve = SimpleNerve(),
+                          n_epochs = 40)
+
+    @test length(out.history) == 40
+    @test all(isfinite, out.history)
+    @test out.history[1] > 0                       # the tent has real 0-dim persistence
+    @test out.θ != θ0                              # optimizer moved the filter
+end

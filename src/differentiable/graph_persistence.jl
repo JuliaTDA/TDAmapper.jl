@@ -64,6 +64,11 @@ end
 Sum of bar lengths of the 0-dimensional sublevel persistence of `g` under node
 filtration `v`. Differentiable in `v`. Default loss for `optimize_filter`
 (negate it to *maximize* topological signal).
+
+Note: this is **ordinary 0-dimensional** persistence — it sees multi-minimum
+(branch / tent) structure but **not loops** (H₁), which require extended
+persistence (deferred to the faithful version). On data whose mapper graph has
+monotone node values it is identically zero, giving no gradient.
 """
 function total_persistence(g, v::AbstractVector)
     d = persistence_diagram(g, v)
