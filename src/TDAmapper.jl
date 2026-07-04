@@ -66,6 +66,10 @@ export ball_mapper
 include("differentiable/graph_persistence.jl")
 export persistence_pairs, persistence_diagram, total_persistence
 
+# Extended persistence — loop-aware loss (Phase 5 Tier G, extended-persistence upgrade)
+include("differentiable/extended_persistence.jl")
+export extended_persistence, total_extended_persistence
+
 include("differentiable/soft_cover.jl")
 export soft_membership
 

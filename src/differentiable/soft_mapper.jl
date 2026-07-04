@@ -103,9 +103,10 @@ end
     # Tent (Λ) shape: two arms rising to a shared apex. Under the height filter
     # DBscan splits the arms at low y (giving two minima) and merges them near
     # the apex, so the mapper graph has nontrivial 0-dim persistence — the
-    # signal the filter optimization needs. (A monotone filter on featureless
-    # data gives total_persistence = 0 and hence no gradient; ordinary 0-dim
-    # persistence cannot see loops — that needs the deferred extended version.)
+    # signal the filter optimization needs. The default loss is now
+    # `total_extended_persistence` (loop-aware); the tent has no loop, so this
+    # exercises its Ord0/Ext0 (0-dim) contribution. See the extended-persistence
+    # tests for the circle case, where only the loop-aware loss is nonzero.
     left  = [[t, t] for t in 0:0.05:1]
     right = [[2 - t, t] for t in 0:0.05:1]
     X = EuclideanSpace(vcat(left, right))
