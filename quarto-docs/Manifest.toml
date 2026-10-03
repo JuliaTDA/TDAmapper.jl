@@ -1343,12 +1343,6 @@ git-tree-sha1 = "5d5e0a78e971354b1c7bff0655d11fdc1b0e12c8"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.8.4"
 
-[[deps.PersistenceDiagrams]]
-deps = ["Compat", "Hungarian", "MLJModelInterface", "RecipesBase", "ScientificTypes", "Statistics", "Tables"]
-path = "../../PersistenceDiagrams.jl"
-uuid = "90b4794c-894b-4756-a0f8-5efeb5ddf7ae"
-version = "0.9.10"
-
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LLVMOpenMP_jll", "Libdl"]
 git-tree-sha1 = "e4a6721aa89e62e5d4217c0b21bd714263779dda"
@@ -1742,6 +1736,12 @@ deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.8.3+2"
 
+[[deps.TDAPersistenceDiagrams]]
+deps = ["Compat", "Hungarian", "LinearAlgebra", "MLJModelInterface", "RecipesBase", "ScientificTypes", "Statistics", "Tables"]
+path = "../../TDAPersistenceDiagrams.jl"
+uuid = "bbe17acd-c4ea-4f01-a2b8-42969f873a90"
+version = "0.1.0"
+
 [[deps.TDAmapper]]
 deps = ["Clustering", "Distances", "Graphs", "LinearAlgebra", "MetricSpaces", "NearestNeighbors", "ProgressMeter", "Reexport", "StatsBase", "TestItems"]
 path = ".."
@@ -1749,7 +1749,7 @@ uuid = "90314d98-8742-41ec-badb-bb392eb26b11"
 version = "0.1.0"
 
 [[deps.TDAplots]]
-deps = ["Chain", "ColorSchemes", "Colors", "Graphs", "Makie", "ManifoldLearning", "MetricSpaces", "MultivariateStats", "NetworkLayout", "PersistenceDiagrams", "Reexport", "StatsBase", "TDAmapper", "UMAP"]
+deps = ["Chain", "ColorSchemes", "Colors", "Graphs", "Makie", "ManifoldLearning", "MetricSpaces", "MultivariateStats", "NetworkLayout", "Reexport", "StatsBase", "TDAPersistenceDiagrams", "TDAmapper", "UMAP"]
 path = "/mnt/Dados/Github/JuliaTDA/TDAplots.jl"
 uuid = "a34ba9c9-258a-4d5b-bbaf-9af986d00e54"
 version = "0.1.0"
