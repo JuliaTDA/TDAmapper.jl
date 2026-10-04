@@ -41,6 +41,7 @@ jobs:
         run: |
           julia --project=. -e '
             using Pkg
+            rm("Manifest.toml"; force=true)
             Pkg.develop(PackageSpec(url = "https://github.com/JuliaTDA/MetricSpaces.jl"))
             Pkg.instantiate()'
       - uses: julia-actions/julia-buildpkg@v1
