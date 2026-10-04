@@ -14,7 +14,12 @@ using Reexport
 using TestItems
 using Graphs
 export Graph
+# MetricSpaces and Graphs both export these names. Pin the TDA meanings so the
+# names re-exported by TDAmapper remain defined and unambiguous.
+using MetricSpaces: center, eccentricity
+export center, eccentricity
 using ChainRulesCore
+import Random
 
 import Base.Threads.@threads
 
@@ -75,6 +80,9 @@ export soft_membership
 
 include("differentiable/filters.jl")
 export LinearFilter
+
+include("differentiable/neural_filters.jl")
+export MLPFilter, initial_parameters, flux_filter, lux_filter
 
 include("differentiable/soft_mapper.jl")
 export soft_mapper, SoftMapper, node_filtration, optimize_filter

@@ -1,11 +1,18 @@
 using TDAmapper
 using TDAmapper.ImageCovers, TDAmapper.IntervalCovers, TDAmapper.Refiners, TDAmapper.Nerves
+using Aqua
 using Test
 using TestItemRunner
 using MetricSpaces.Datasets: sphere
 using Graphs: nv, ne
 
+# Neural weak dependencies enlarge Aqua's isolated precompile wrapper. Keep the
+# shutdown test enabled, allowing extra shutdown time on Julia 1.12.
+Aqua.test_all(TDAmapper;persistent_tasks=(tmax=120,))
+
 @run_package_tests
+
+include("test_neural_filters.jl")
 
 @testset "Integration tests" begin
     @testset "End-to-end classical mapper on sphere" begin

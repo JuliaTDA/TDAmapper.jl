@@ -7,7 +7,7 @@ Returns vectors of **node indices** into `v`: each finite class is born at
 `v[birth_idx[k]]` and dies at `v[death_idx[k]]`. The single essential class
 (global minimum) is dropped. Non-differentiable (pure combinatorics).
 
-Re-expressed as the ascending sweep of [`_persistence_pass`](@ref) (which also
+Re-expressed as the ascending sweep of `_persistence_pass` (which also
 recovers the extended-persistence families); see [`extended_persistence`](@ref).
 """
 function persistence_pairs(g, v::AbstractVector)

@@ -9,7 +9,7 @@
 """
     euclidean_space(table; cols=nothing, standardize=false) -> EuclideanSpace
 
-Build an [`EuclideanSpace`](@ref) from any
+Build an `EuclideanSpace` from any
 [Tables.jl](https://github.com/JuliaData/Tables.jl)-compatible table, turning
 each row into a point.
 

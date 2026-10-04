@@ -7,18 +7,20 @@ using TDAmapper.Nerves
 """
     classical_mapper(
         X::MetricSpace,
-        C::AbstractImageCover,
-        R::AbstractRefiner,
-        N::GraphNerve    
+        C,
+        R,
+        N
     ) -> Mapper
 
 Constructs a Mapper object from a metric space using the Mapper algorithm.
 
 # Arguments
 - `X::MetricSpace`: The input metric space containing the data points.
-- `C`: The image covering strategy.
+- `C`: The image covering strategy. There is no default: a covering cannot
+  be constructed without filter values, so the caller must supply one (e.g.
+  an `R1Cover` or `R2Cover`).
 - `R`: A refiner to apply to the pre-images of the cover intervals.
-- `N::GraphNerve`: A nerve function to compute the nerve (graph) of the cover.
+- `N`: A nerve strategy to compute the nerve (graph) of the cover.
 
 # Returns
 - `Mapper`: An object containing the covered metric space and the resulting nerve graph.
@@ -28,7 +30,7 @@ This function implements the Mapper algorithm for topological data analysis. It 
 """
 function classical_mapper(
     X::MetricSpace,
-    C=Uniform(),
+    C,
     R=DBscan(),
     N=SimpleNerve()
 )

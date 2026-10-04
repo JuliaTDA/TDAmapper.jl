@@ -1,70 +1,37 @@
-# The Reaven and Miller diabetes dataset
+# A tabular workflow with the diabetes dataset
 
-Let's reproduce the results of [...].
+The Reaven–Miller diabetes dataset is a historical example of multivariate exploration. This page describes how to apply the current table workflow to an already loaded dataset. It does not reproduce a published figure or claim a medical interpretation. The general [Tables and node interpretation](@ref) guide runs on a tiny column table without downloading external data.
 
-## Dataset
+## Load and validate the observations
 
-To load the dataset, we will use an R package that contains it, and then convert it to a Julia DataFrame. You will need a working R installation for that.
+If you use the `diabetes` data in R's `rrcov` package, load it through RCall or export it to a table format you already use. R, RCall, and the dataset package are optional external dependencies; installation and downloads should be done explicitly before analysis. Keep the source citation and dataset version with your work.
 
-```@example diabetes
-using RCall
-using TidierData
-using TDAmapper
+After loading a Tables-compatible table called `df`, inspect its schema and confirm the numerical columns `rw`, `fpg`, `glucose`, `insulin`, and `sspg`, plus any group labels you intend to display. Handle missing values before selecting these features.
 
-df = R"""
-if (require("rrcov") == FALSE) {
-    install.packages("rrcov")
-}
-
-library(rrcov)
-data("diabetes")
-
-diabetes
-""" |> rcopy;
+```julia
+using TDAmapper, Tables
+X = euclidean_space(df; cols=[:rw, :fpg, :glucose, :insulin, :sspg], standardize=true)
 ```
 
-```@example diabetes
-first(df, 10)
+Selected rows become observations; standardization puts the five features on comparable sample scales. It also changes the geometry, so distance radii must be chosen in the standardized space. Group labels are excluded from geometry and remain aligned to the original rows.
+
+## Construct and inspect a summary
+
+```julia
+using TDAmapper.ImageCovers: R1Cover
+using TDAmapper.IntervalCovers: QuantileCover
+using TDAmapper.Refiners: DBscan
+using Graphs: nv, ne
+filter_values = eccentricity(X)
+M = classical_mapper(X,
+    R1Cover(filter_values, QuantileCover(n_intervals=6, expansion=0.3)),
+    DBscan(radius=0.5))
+summary = node_statistics(M, df)
+(; nodes=nv(M.g), edges=ne(M.g), sizes=length.(M.C))
 ```
 
-Now, let's extract only the numeric columns:
+These values illustrate the interface, not validated analysis settings. Inspect nearest-neighbor distances and the groups inside each pullback, then compare neighboring radii and cover settings. You can also use `ball_mapper(X, farthest_points_sample_ids(X, min(20, length(X))), 0.5)` and check its coverage explicitly.
 
-```@example diabetes
-pre_X = @chain df begin
-    @select(rw, fpg, glucose, insulin, sspg)
-    Matrix    
-end;
-```
+## Interpret with metadata
 
-and normalize them:
-
-```@example diabetes
-function normalize(x)
-    dev = std(x)
-    if (std(x) ≈ 0) 
-        dev = 1
-    end
-    (x .- mean(x)) ./ dev
-end
-
-X = mapslices(normalize, pre_X, dims = 1)' |> Matrix;
-```
-
-## Ball mapper
-
-Now we calculate the ball mapper using all nodes, and setting $\epsilon = 0.5$:
-
-```@example diabetes
-mp = ball_mapper(X, [1:size(X)[2];], ϵ = 0.5);
-```
-
-The resulting graph is the following:
-
-```@example diabetes
-node_values = node_colors(mp, df.group .|> string)
-node_positions = layout_mds(mp.CX, dim = 3)
-
-mapper_plot(mp, node_values = node_values, node_positions = node_positions)
-```
-
-We colored each node by the most common type of diabetes of the points in the node. We can see two branches coming from the center: one going left, with overt type diabetes, and another one going up, with chemical type diabetes.
+Compare numerical node summaries and category counts over `df` rows indexed by `M.C[v]`. Small or overlapping groups should be interpreted with care. A graph can suggest an exploratory pattern; it does not provide a diagnosis, causal explanation, or statistically validated classification. Plotting is available separately through TDAplots, using the same node membership indices.

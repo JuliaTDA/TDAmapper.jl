@@ -22,13 +22,13 @@ All mapper implementations typically contain:
 abstract type AbstractMapper end
 
 """
-    Mapper{S<:MetricSpace, G<:AbstractGraph} <: AbstractMapper
+    Mapper{S<:MetricSpace, G} <: AbstractMapper
 
 Represents the result of a classical or generic mapper algorithm.
 
 # Type Parameters
 - `S<:MetricSpace`: The concrete type of the metric space
-- `G<:AbstractGraph`: The concrete type of the graph
+- `G`: The concrete graph or simplicial-complex result type
 
 # Fields
 - `X::S`: The original metric space that was analyzed
@@ -43,42 +43,18 @@ The type parameters allow Julia to specialize methods on concrete types for bett
 # Example
 ```julia
 using TDAmapper
-# mapper_result = generic_mapper(X, custom_cover, custom_refiner, custom_nerve)
+# mapper_result = mapper(X, custom_cover, custom_refiner, custom_nerve)
 # println(mapper_result)  # Output: "Mapper graph with N vertices and M edges"
 ```
 
 # See Also
-- [`generic_mapper`](@ref): Function that creates generalized mapper objects
-- [`BallMapper`](@ref): BallMapper implementation
+- [`mapper`](@ref): Function that creates generalized mapper objects
+- [`ball_mapper`](@ref): Landmark-ball Mapper implementation
 """
 @kwdef struct Mapper{S<:MetricSpace, G} <: AbstractMapper
     X::S
     C::Covering
     g::G
-end
-
-
-"""
-    Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: Covering}
-
-Convert a vector of vectors to a `Covering` type.
-
-This method ensures all inner vectors are converted to contain `Int32` elements, suitable for use as a covering.
-"""
-function Base.convert(::Type{T}, x::Vector{<:Vector{<:Any}}) where {T <: Covering}
-    [convert.(Int, c) for c ∈ x]
-end
-
-
-"""
-    Base.convert(::Type{T}, x::T) where {T <: Covering}
-
-Identity conversion for `Covering` types.
-
-Returns the input unchanged if it is already of the target `Covering` type.
-"""
-function Base.convert(::Type{T}, x::T) where {T <: Covering}
-    x
 end
 
 

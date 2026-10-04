@@ -303,7 +303,7 @@ version = "1.11.0"
 
 [[deps.MetricSpaces]]
 deps = ["DelimitedFiles", "Distances", "Downloads", "Graphs", "OhMyThreads", "ProgressMeter", "Random", "SparseArrays", "StaticArrays", "Statistics", "StatsBase"]
-path = "/mnt/Dados/Github/JuliaTDA/MetricSpaces.jl"
+path = "../MetricSpaces.jl"
 uuid = "737298cd-3e4b-40c4-a4ce-863151543a8d"
 version = "0.2.0"
 

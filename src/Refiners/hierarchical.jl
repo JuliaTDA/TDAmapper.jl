@@ -82,7 +82,7 @@ Ward's method merges clusters to minimize the total within-cluster variance.
 """
 WardLinkage(; threshold=0.5, metric=Euclidean()) = Hierarchical(linkage=:ward, threshold=threshold, metric=metric)
 
-const _VALID_LINKAGES = (:single, :complete, :average, :ward)
+const _VALID_LINKAGES = (:single, :complete, :average, :ward, :ward_presquared)
 
 function TDAmapper.validate(r::Hierarchical)
     r.threshold > 0 || throw(MapperArgumentError("Hierarchical — threshold must be > 0, got $(r.threshold)"))

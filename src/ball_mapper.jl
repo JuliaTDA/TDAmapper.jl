@@ -1,5 +1,5 @@
 """
-    ball_mapper(X::MetricSpace, L::Vector{<:Integer}; ϵ::Number = 1) -> BallMapper
+    ball_mapper(X::MetricSpace, L::Vector{<:Integer}, epsilon=1) -> Mapper
 
 Creates the ball mapper of a metric space `X` subsampled by `L`.
 
@@ -7,11 +7,11 @@ Creates the ball mapper of a metric space `X` subsampled by `L`.
 - `X::MetricSpace`: a point cloud.
 - `L::Vector{<:Integer}`: a subset of index of `X`, that is:
     L is a subset of [1:size(X)[2]].
-- `ϵ::Number`: the radius of the balls around the points
-    `X[:, l]` for `l` ∈ `L`.
+- `epsilon`: the radius of the balls around the points
+    `X[:, l]` for `l` ∈ `L` (positional argument, default `1`).
 
 # Returns
-- `BallMapper`: A ball mapper object containing the metric space, landmarks, covering, and graph
+- `Mapper`: A mapper object containing the metric space, covering, and nerve graph.
 
 # Details
 For each index `i` of `L`, we define `c_i` as the ball of 
@@ -27,12 +27,12 @@ using TDAmapper
 X = EuclideanSpace([[1.0, 2.0], [3.0, 4.0], [2.0, 3.0]])
 L = [1, 2, 3]  # Use all points as landmarks
 ϵ = 1.5
-mapper = ball_mapper(X, L, ϵ=ϵ)
+mapper = ball_mapper(X, L, ϵ)
 ```
 
 # See Also
-- [`ball_mapper_generic`](@ref): Generic version with custom functions
-- [`BallMapper`](@ref): The returned data structure
+- [`mapper`](@ref): The generic mapper pipeline used internally
+- [`DomainCovers.EpsilonBall`](@ref): The domain covering strategy backing `ball_mapper`
 """
 function ball_mapper(X::MetricSpace, L::Vector{<:Integer}, epsilon=1)
     mapper(

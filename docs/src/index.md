@@ -1,77 +1,38 @@
-
 # TDAmapper.jl
 
-**TDAmapper.jl** is a Julia package providing efficient implementations of Mapper-like algorithms from [Topological Data Analysis](https://en.wikipedia.org/wiki/Topological_data_analysis) (TDA). These algorithms transform high-dimensional data into graph representations, revealing the underlying topological structure of datasets.
+Mapper compresses observations into overlapping groups and draws their relationships as a graph. A node represents a group of **original observations**; an edge records that two groups share observations. This lets you inspect branches, connected groups, and cycles while retaining a route back to the data.
 
-## Overview
+TDAmapper implements classical Mapper, Ball Mapper, interchangeable cover/refiner/nerve strategies, table integration, and graph-persistence objectives for learning filters. It reexports MetricSpaces' public geometric operations.
 
-TDAmapper.jl is designed for:
+## A circle viewed through its first coordinate
 
-- **Data visualization**: Construct graph representations of complex, high-dimensional data.
-- **Shape analysis**: Investigate geometric and topological properties of datasets.
-- **Dimensionality reduction**: Extract essential features while preserving topological information.
-- **Clustering analysis**: Identify connected components and relationships within data.
-
-## Features
-
-- Multiple algorithms: Classical Mapper, BallMapper, and generalized variants.
-- High performance: Optimized Julia implementations.
-- Flexibility: Customizable covers, clustering methods, and filtering functions.
-- Integration: Compatible with the Julia data science ecosystem.
-
-## Quick Start
-
-### Installation
-
-To install TDAmapper.jl, use Julia's package manager:
-
-```julia
-using Pkg
-Pkg.add(url="https://github.com/JuliaTDA/TDAmapper.jl")
-```
-
-Or in package mode:
-
-```julia
-] add https://github.com/JuliaTDA/TDAmapper.jl
-```
-
-### Example: Mapper Graph Construction
-
-```julia
+```@example mapper_home
 using TDAmapper
-
-# Generate a torus point cloud
-X = torus(2000)
-
-# Define filter values (e.g., first coordinate)
-fv = X[1, :]
-
-# Create a uniform cover with overlap
-C = uniform(fv, overlap = 150)
-
-# Compute the mapper graph
-mp = mapper(X, fv, C; clustering = cluster_dbscan(radius = 1.0))
-
-# Visualize node values
-node_values = node_colors(mp, fv)
-mapper_plot(mp, node_values = node_values)
+using TDAmapper.ImageCovers: R1Cover
+using TDAmapper.IntervalCovers: Uniform
+using TDAmapper.Refiners: DBscan
+using Graphs: nv, ne
+angles = range(0, 2π; length=121)[1:end-1]
+X = EuclideanSpace([[cos(t), sin(t)] for t in angles])
+C = R1Cover(first.(X), Uniform(length=8, expansion=0.4))
+M = classical_mapper(X, C, DBscan(radius=0.15))
+@assert nv(M.g) == length(M.C)
+(; nodes=nv(M.g), edges=ne(M.g), first_node_members=M.C[1])
 ```
 
-## Further Reading
+Intervals in the first coordinate gather nearby levels of the circle. Clustering separates its upper and lower arcs where they are far apart. Shared observations connect adjacent groups. The [Classical Mapper](@ref) tutorial opens each stage and explains the choices.
 
-For those new to Julia, consider the following resources:
+## Read by goal
 
-- [Julia for Optimization and Learning](https://juliateachingctu.github.io/Julia-for-Optimization-and-Learning/stable/)
+| Goal | Guide |
+|---|---|
+| Install a source checkout and prepare observations | [Getting started](@ref) |
+| Understand the cover → cluster → nerve pipeline | [Classical Mapper](@ref) |
+| Use landmarks and balls without a filter | [Ball Mapper](@ref) |
+| Compare covers, refiners, and overlap rules | [Strategies and multivariate filters](@ref) |
+| Build a custom strategy | [Extending the Mapper pipeline](@ref) |
+| Read a table and summarize graph nodes | [Tables and node interpretation](@ref) |
+| Learn a scalar filter with graph persistence | [Differentiable Mapper and graph persistence](@ref), [Nonlinear Mapper filters](@ref) |
+| Diagnose a fragmented or dense graph | [Parameter selection and troubleshooting](@ref) |
 
-```@example quick_start
-node_values = node_colors(mp, fv)
-
-mapper_plot(mp, node_values = node_values)
-```
-
-## New to Julia?
-
-That was too much Julia for you? No problem! You can learn more with some very nice books like these:
-
-- [Julia for Optimization and Learning](https://juliateachingctu.github.io/Julia-for-Optimization-and-Learning/stable/)
+A graph is a summary conditioned on your filter, geometry, cover, and clustering parameters. Its drawing and graph cycles alone do not establish properties of an underlying population. Use metadata, sensitivity checks, and the original observations to interpret it.

@@ -1,38 +1,56 @@
-# Ball mapper
+# Ball Mapper
 
-## The Vietoris-Rips complex
+Ball Mapper covers a point cloud with balls centered at selected landmark observations, then connects balls that share observed points. It needs a geometry and a radius, but no scalar filter or clustering step.
 
-Another way to reduce the complexity of a metric space is to approximate it by a [simplicial complex](https://en.wikipedia.org/wiki/Simplicial_complex). Simplicial complexes are like small building blocks glued together, each of these blocks a small representative of an $n$-dimensional space: points, line segments, triangles, tetrahedrons, and so on.
+## Build and inspect a small example
 
-The [Vietoris-Rips complex](https://en.wikipedia.org/wiki/Vietoris%E2%80%93Rips_complex) is built as follows: given a metric space $(X, d)$ and an $\epsilon > 0$, define the following simplicial complex:
-
-$$
-VR(X, \epsilon) = \{ [ x_1, \ldots, x_n ] \; d(x_i, x_j) < \epsilon, \forall i, j \}
-$$
-
-that is: the points of $X$ are our vertices, and we have an $n$-simplex $[x_1, \ldots, x_n]$ whenever the pairwise distance between $x_1, \ldots, x_n$ is less than $\epsilon$. This condition is equivalent to ask that
-
-$$
-\cap_i B(x_i, \epsilon) \neq \emptyset
-$$
-
-where $B(x, \epsilon)$ is the ball of center $x$ and radius $\epsilon$.
-
-![Vietoris-Rips complex illustration. The black dots are points in a metric space; the pink circles are $\epsilon$ balls around the points; in green, we have the Vietoris-Rips complex.](images/vr.png)
-
-## The ball mapper
-
-The ball mapper is clearly inspired by the Vietoris-Rips complex. Given a metric space $(X, d)$ with $X = \{x_1, \ldots, x_n\}$, select a subset of indexes $L \subseteq \{1, \ldots, n\}$ and define the ball mapper graph G as follows: the set of vertices of $G$ is $L$, and set of edges $E$ given by
-
-$$
-(i, j) \in E \Leftrightarrow B(x_i, \epsilon) \cap B(x_j, \epsilon) \neq \emptyset
-$$
-
-The ball mapper then can be seen as the 1-skeleton of the Vietoris-Rips, but created using balls whose center can only be the elements indexed by $L$.
-
-To exemplify, consider a circle:
-
-```@example ballmapper
+```@example mapper_balls
 using TDAmapper
-import GeometricDatasets as gd
+using Graphs: nv, ne
+X = EuclideanSpace(reshape([0.0, 0.5, 1.0, 1.5, 2.0], 1, :))
+landmarks = [1, 3, 5]
+M = ball_mapper(X, landmarks, 0.6)
+@assert length(M.C) == length(landmarks)
+@assert M.C[1] == [1, 2]
+(; landmarks, node_members=M.C, nodes=nv(M.g), edges=ne(M.g))
 ```
+
+Node `v` corresponds to landmark `landmarks[v]`, and `M.C[v]` contains original observation indices in its ball. The standard construction preserves the landmark order. The radius is the third **positional** argument, not an `ϵ` keyword. Landmarks must be valid indices into `X` and the radius must be positive.
+
+The ball strategy uses NearestNeighbors' range query and includes observations at the radius boundary. This differs from MetricSpaces' `ball_ids`, which uses strict inequality. For floating-point boundary cases, inspect membership explicitly.
+
+## Select landmarks and verify coverage
+
+```@example mapper_balls
+using Random
+Random.seed!(17)
+ids = farthest_points_sample_ids(X, 3)
+M2 = ball_mapper(X, ids, 0.6)
+covered = Set(vcat(M2.C...))
+uncovered = setdiff(Set(eachindex(X)), covered)
+@assert isempty(uncovered)
+(; ids, uncovered)
+```
+
+Use `epsilon_net(X, ε)` for enough centers to cover the cloud at a chosen open-ball radius, or farthest-point sampling for a fixed count. The latter can leave observations uncovered if its achieved coverage radius exceeds your selected radius. A random landmark sample can miss rare components.
+
+## Which nerve is this?
+
+An edge means that a **sampled observation** belongs to both landmark balls. Two ambient balls can intersect without sharing any observed point, in which case this graph has no edge. Conversely, nearby landmark centers alone do not define an edge unless their observed memberships intersect.
+
+This is a nerve of an observed ball cover, not the Vietoris–Rips complex of the landmark centers. Rips tests pairwise distances; the nerve tests shared intersection. Pairwise overlaps do not guarantee a triple intersection or a filled triangle. Use `SimplicialNerve` when higher-dimensional nerve information is required.
+
+## Customize distance, refinement, or overlap
+
+```@example mapper_balls
+using TDAmapper.DomainCovers: EpsilonBall
+using TDAmapper.Refiners: Trivial
+using TDAmapper.Nerves: MinCountNerve
+C = EpsilonBall(X=X, L=landmarks, epsilon=0.6)
+stronger = mapper(X, C, Trivial(), MinCountNerve(2))
+(; ordinary_edges=ne(M.g), stronger_edges=ne(stronger.g))
+```
+
+`EpsilonBall(...; metric=...)` is configured through its keyword constructor with a Distances.jl metric object. Pass another refiner or nerve to `mapper` to change the standard Ball Mapper behavior. See [Strategies and multivariate filters](@ref).
+
+Try several radii and record coverage, landmark count, node sizes, and graph components. A tiny radius fragments the graph; a very large one makes many balls overlap. A meaningful geometric scale and original data inspection are more useful than targeting a particular drawing.

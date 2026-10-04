@@ -58,9 +58,14 @@ function (r::SpectralRefiner)(X::MetricSpace)
     D_inv_sqrt = Diagonal(d_inv_sqrt)
     L = I - D_inv_sqrt * W * D_inv_sqrt
 
-    # k smallest eigenvectors (by eigenvalue magnitude)
+    # k smallest eigenvectors of the normalized Laplacian. For a graph with
+    # c connected components the first c eigenvectors (eigenvalue 0) are the
+    # component indicators, which give perfect clustering when k == c; for a
+    # connected graph the 1st eigenvector is constant but is neutralized by the
+    # row-normalization below. We therefore keep eigenvectors 1:k_actual rather
+    # than skipping the first, so the method works in both regimes.
     _, vecs = eigen(Symmetric(L))
-    U = vecs[:, 1:k_actual]  # n × k_actual matrix of eigenvectors
+    U = vecs[:, 1:k_actual]
 
     # Normalize rows to unit length (standard spectral clustering step)
     for i in 1:n

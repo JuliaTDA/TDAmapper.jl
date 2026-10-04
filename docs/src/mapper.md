@@ -1,29 +1,70 @@
-# (Classical) mapper
+# Classical Mapper
 
-## Some theory
+## A filter shows one aspect of a cloud
 
-### Reeb graph
+A Reeb graph identifies connected pieces at each level of a continuous scalar function. Mapper approximates this idea on observed data: use overlapping intervals instead of exact levels, and clustering instead of connected components of a continuous space.
 
-In topology, there are many ways by which we try to see what can't be seen, in particular high-dimensional sets. The [Reeb graph](https://en.wikipedia.org/wiki/Reeb_graph) is one of those ways: given a topological space $X$ and a continuous function $f: X \to \mathbb{R}$, we can collapse the connected components of its pre-images to get a graph that reflects the level-sets of $f$.
+The pipeline has three stages:
 
-More formally, we define a relation $\sim$ on $X$ such that $p \sim q$ if-and-only-if $p$ and $q$ belong to the same connected component of $f^{-1}(c)$ for some $c \in \mathbb{R}$.
+1. Cover the filter range and pull each interval back to observation indices.
+2. Cluster each pullback using distances in the original observation geometry.
+3. Join the refined subsets when they share observations.
 
-![The Reeb graph of a torus using the projection on the z-axis.](images/reeb.png)
+The filter controls what aspect is viewed; clustering decides what is locally connected. A coordinate, mean eccentricity, density score, or measured outcome can all serve as filters. The appropriate choice depends on the question.
 
-### The (classical) mapper
+## Follow a circle through each stage
 
-The (classical) mapper is an algorithm to create [graphs](https://en.wikipedia.org/wiki/Graph_theory) from [metric spaces](https://en.wikipedia.org/wiki/Metric_space), and can be seen as an "statistical" version of the Reeb graph.
+```@example mapper_circle
+using TDAmapper
+using TDAmapper.ImageCovers: R1Cover
+using TDAmapper.IntervalCovers: Uniform
+using TDAmapper.Refiners: DBscan, refine_cover
+using TDAmapper.Nerves: SimpleNerve, make_graph
+using Graphs: nv, ne
+angles = range(0, 2π; length=121)[1:end-1]
+X = EuclideanSpace([[cos(t), sin(t)] for t in angles])
+f_X = first.(X)
+cover_strategy = Uniform(length=8, expansion=0.4)
+image_cover = R1Cover(f_X, cover_strategy)
+raw = make_cover(image_cover)
+(; intervals=image_cover.U, pullback_sizes=length.(raw))
+```
 
-To be able to mimick the Reeb graph, we need to change some objects from the continuous setting to the discrete setting:
+`f_X[i]` belongs to observation `i`. Intervals are closed, so endpoints can belong to adjacent intervals even when the expansion is zero. For `Uniform`, let $\Delta=(\max f-\min f)/(\text{length}-1)$. Interval centers are spaced by $\Delta$ and each interval has width $\Delta(1+\text{expansion})$. Thus `expansion=0.4` means 40% extra width relative to that spacing, **not** a 40% overlap fraction of the final interval width.
 
-- $X = (X, d)$ is now a finite metric space, also called a *point cloud*;
-- $f: X \to \mathbb{R}$ can be any function (since $X$ is discrete, $f$ is automatically continuous);
-- instead of inverse images of *points* of $\mathbb{R}$, we calculate inverse images of *subsets* of $\mathbb{R}$ (usually intervals);
-- instead of connected components (which are trivial in the discrete setting), we use some clustering algorithm (DBSCAN, single linkage, etc.) and consider these clusterings as "connected pieces of $X$".
+```@example mapper_circle
+refiner = DBscan(radius=0.15)
+refined = refine_cover(X, raw, refiner)
+g = make_graph(X, refined, SimpleNerve())
+M = classical_mapper(X, image_cover, refiner)
+@assert M.C == refined
+@assert nv(g) == nv(M.g) && ne(g) == ne(M.g)
+(; raw_sets=length(raw), refined_sets=length(refined), graph=M.g)
+```
 
-![Mapper algorithm illustration](images/mapper.png)
+The filter's middle intervals contain two arcs: one above and one below the horizontal axis. Euclidean clustering splits them; near the extreme coordinates the arcs connect. Each cover element is clustered independently, and the resulting subsets still refer to the original observation indices.
 
-The mapper graph can shed light to the geometry of $X$:
+## Read nodes as groups, edges as shared observations
 
-- nodes are clusters of points of $X$;
-- edges indicate clusters that share points (i.e., overlap in the cover or clustering step).
+```@example mapper_circle
+sizes = length.(M.C)
+node_filter_means = [sum(f_X[ids]) / length(ids) for ids in M.C]
+covered = Set(vcat(M.C...))
+@assert covered == Set(eachindex(X))
+(; smallest_node=minimum(sizes), largest_node=maximum(sizes),
+   node_filter_means)
+```
+
+Node size measures membership, not independent sample count. An edge between nodes indicates overlap; it is not a direct distance between node centroids. Plot layout is another representation and does not encode the original geometry automatically.
+
+## Clustering, noise, and empty sets
+
+`DBscan` defaults to `min_neighbors=1` and `min_cluster_size=1`, which is permissive and useful for connectivity demonstrations. Increasing these changes the meaning of a cluster. In this package, cluster label 0 is reassigned to **one additional outlier group per pullback**; those observations are retained. Widely separated noise points can therefore occur together in a node. Inspect noise behavior before interpreting such a node as a connected group.
+
+Most refiners omit empty pullbacks through the generic refinement path. `Trivial()` keeps the raw cover unchanged, so empty pullbacks may remain as empty isolated vertices. Exclude them when computing a mean yourself.
+
+## Change the viewpoint
+
+Use `R1Cover(eccentricity(X), cover_strategy)` for global centrality, or `R1Cover(distance_to_measure(X, X; k=5), cover_strategy)` for a local isolation score. Keep the geometry and clustering fixed initially so you can see what changing the filter does. Two-dimensional filters and alternative cover designs are described in [Strategies and multivariate filters](@ref).
+
+A circle need not produce the same graph for every parameter setting. A coarse cover, excessive overlap, or a clustering radius larger than the separation between arcs can change the summary. The useful question is which structures persist under sensible neighboring choices.

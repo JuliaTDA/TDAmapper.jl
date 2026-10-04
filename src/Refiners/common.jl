@@ -57,10 +57,11 @@ partition the subset into clusters. The process works as follows:
    - Apply the refiner `R(X[ids])` to get cluster assignments
    - Map cluster assignments back to original indices
 2. Flatten all per-element cluster vectors into a single vector of index sets
-3. Handle outliers (points assigned to cluster 0) by creating a separate outlier cluster
 
-Any outliers (typically marked with 0 by some clustering methods) are reassigned
-to a separate outlier cluster using `create_outlier_cluster`.
+Outliers (points assigned to cluster `0` by some clustering methods) are
+reassigned to a separate outlier cluster *inside the refiner* (via
+`create_outlier_cluster`) while the data is still cluster labels, before the
+labels are mapped back to point indices.
 
 # Examples
 ```julia
@@ -99,7 +100,10 @@ function refine_cover(X::MetricSpace, C::Covering, R)
         end
     end
 
-    # Flatten per-element results and handle outliers (cluster 0 in some methods)
-    result = reduce(vcat, per_element)
-    create_outlier_cluster(result)
+    # Flatten per-element results into a single covering.
+    # Outlier (cluster-0) reassignment is performed inside each refiner on the
+    # cluster-assignment vector (e.g. `DBscan` calls `create_outlier_cluster`).
+    # By the time we have flattened to point-index sets, the label-0 information
+    # is gone, so no further outlier handling is needed here.
+    reduce(vcat, per_element; init=Vector{Vector{Int}}())
 end

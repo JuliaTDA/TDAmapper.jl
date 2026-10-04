@@ -45,8 +45,8 @@ covering = make_cover(cover)  # Returns vector of index vectors
 
 # See Also
 - [`make_cover`](@ref): Generate the covering from this strategy
-- [`AbstractIntervalCover`](@ref): Interface for interval covering strategies
-- [`Uniform`](@ref): A common interval covering implementation
+- [`TDAmapper.IntervalCovers.AbstractIntervalCover`](@ref): Interface for interval covering strategies
+- [`TDAmapper.IntervalCovers.Uniform`](@ref): A common interval covering implementation
 """
 @kwdef struct R1Cover{T<:Real, I<:Interval} <: AbstractImageCover
     f_X::Vector{T}

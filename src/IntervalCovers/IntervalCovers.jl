@@ -3,6 +3,7 @@ module IntervalCovers
 using ..TDAmapper
 using TestItems
 
+"""Base interface for callable strategies mapping a real-valued filter vector to intervals."""
 abstract type AbstractIntervalCover end
 
 # every AbstractIntervalCover must implement a method:

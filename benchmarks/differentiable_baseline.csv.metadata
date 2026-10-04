@@ -1,0 +1,8 @@
+cpu = alderlake
+os = Linux
+arch = x86_64
+git_revision = 6f702a41aa1573f886b8d673010a55628e66bfdc
+working_tree_dirty = true
+benchmarktools = 1.8.0
+zygote = 0.7.13
+optimisers = 0.4.9
