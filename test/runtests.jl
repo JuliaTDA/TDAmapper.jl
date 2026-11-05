@@ -6,9 +6,10 @@ using TestItemRunner
 using MetricSpaces.Datasets: sphere
 using Graphs: nv, ne
 
-# Neural weak dependencies enlarge Aqua's isolated precompile wrapper. Keep the
-# shutdown test enabled, allowing extra shutdown time on Julia 1.12.
-Aqua.test_all(TDAmapper;persistent_tasks=(tmax=120,))
+# Neural weak dependencies enlarge Aqua's isolated precompile wrapper. The
+# wrapper exceeded 120 seconds in cold Julia 1.12 validation; keep the shutdown
+# test enabled while allowing up to five minutes for the process to finish.
+Aqua.test_all(TDAmapper;persistent_tasks=(tmax=300,))
 
 @run_package_tests
 

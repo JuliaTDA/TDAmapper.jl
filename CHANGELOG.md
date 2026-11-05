@@ -4,6 +4,10 @@ Notable changes to TDAmapper are recorded here.
 
 ## Unreleased
 
+- Allow up to five minutes for Aqua's isolated precompile process to finish on
+  Julia 1.12 when optional neural dependencies are present; keep the persistent
+  task check enabled.
+
 - Add native MLP filter parameter trees and optional explicit Flux/Lux adapters.
 - Generalize optimize_filter to parameter trees and an optional regularizer;
   preserve caller parameters through out-of-place optimization, reject nonfinite
