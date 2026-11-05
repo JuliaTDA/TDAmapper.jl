@@ -2,7 +2,7 @@
 
 Notable changes to TDAmapper are recorded here.
 
-## Unreleased
+## v0.1.1 — 5 November 2026
 
 - Allow up to five minutes for Aqua's isolated precompile process to finish on
   Julia 1.12 when optional neural dependencies are present; keep the persistent
