@@ -1,5 +1,32 @@
+# Maintain a maximum spanning forest of the edges seen in ascending birth
+# order. The weight of an edge is the smaller of its two vertex heights.
+# At every lower cutoff d, the forest edges of weight ≥ d span exactly the
+# components of the graph restricted to that band of heights. A closing
+# edge thus adds one band cycle for every d up to the minimum on its forest
+# path (including its endpoints). That cutoff is the extended death.
+function _close_loop!(forest, heights, a, b)
+    parents = Graphs.bfs_parents(forest, a)
+    death = heights[a] <= heights[b] ? a : b
+    weakest_edge = (a, b)
+    node = b
+    while node != a
+        parent = parents[node]
+        lower = heights[node] <= heights[parent] ? node : parent
+        if heights[lower] < heights[death]
+            death = lower
+            weakest_edge = (node, parent)
+        end
+        node = parent
+    end
+    if weakest_edge != (a, b)
+        Graphs.rem_edge!(forest, weakest_edge...)
+        Graphs.add_edge!(forest, a, b)
+    end
+    return death
+end
+
 """
-    _persistence_pass(g, v; ascending) -> (ord_pairs, neg_nodes, roots, comp_min, comp_max)
+    _persistence_pass(g, v; ascending, pair_loops=false)
 
 One union-find sweep over the edges of `g` filtered by node values `v`. Pure
 combinatorics (non-differentiable); everything is returned as **node indices**
@@ -17,7 +44,7 @@ into `v` so the caller can gather differentiable values.
   `neg_nodes` `=` lower-endpoint node of each negative edge (H₁ death). The other
   outputs are unused by callers.
 """
-function _persistence_pass(g, v::AbstractVector; ascending::Bool)
+function _persistence_pass(g, v::AbstractVector; ascending::Bool, pair_loops::Bool=false)
     n = length(v)
     parent = collect(1:n)
     function find(x)
@@ -30,7 +57,6 @@ function _persistence_pass(g, v::AbstractVector; ascending::Bool)
 
     # per-root elder value/node (min for ascending, max for descending) and
     # per-root extremes of the whole component (by absolute node value).
-    birth_val = collect(float.(v))
     birth_node = collect(1:n)
     comp_min = collect(1:n)   # node index of the component minimum value
     comp_max = collect(1:n)   # node index of the component maximum value
@@ -47,6 +73,8 @@ function _persistence_pass(g, v::AbstractVector; ascending::Bool)
     birth_idx = Int[]
     death_idx = Int[]
     neg_nodes = Int[]
+    loop_deaths = Int[]
+    forest = pair_loops ? Graphs.SimpleGraph(n) : nothing
     for k in order
         e = es[k]
         a = Graphs.src(e)
@@ -58,21 +86,27 @@ function _persistence_pass(g, v::AbstractVector; ascending::Bool)
             # endpoint; descending ⇒ H₁ dies at the lower endpoint.
             if ascending
                 push!(neg_nodes, v[a] >= v[b] ? a : b)
+                if pair_loops
+                    push!(loop_deaths, _close_loop!(forest, v, a, b))
+                end
             else
                 push!(neg_nodes, v[a] <= v[b] ? a : b)
             end
             continue
         end
+        if pair_loops
+            Graphs.add_edge!(forest, a, b)
+        end
         # positive edge: merge the two components (elder rule).
         if ascending
-            older, younger = birth_val[ra] <= birth_val[rb] ? (ra, rb) : (rb, ra)
-            if evals[k] > birth_val[younger]
+            older, younger = v[birth_node[ra]] <= v[birth_node[rb]] ? (ra, rb) : (rb, ra)
+            if evals[k] > v[birth_node[younger]]
                 dnode = v[a] >= v[b] ? a : b      # endpoint realizing the edge value
                 push!(birth_idx, birth_node[younger])
                 push!(death_idx, dnode)
             end
         else
-            older, younger = birth_val[ra] >= birth_val[rb] ? (ra, rb) : (rb, ra)
+            older, younger = v[birth_node[ra]] >= v[birth_node[rb]] ? (ra, rb) : (rb, ra)
         end
         parent[younger] = older               # elder keeps its birth_val/birth_node
         v[comp_min[younger]] < v[comp_min[older]] && (comp_min[older] = comp_min[younger])
@@ -81,7 +115,7 @@ function _persistence_pass(g, v::AbstractVector; ascending::Bool)
 
     roots = [find(i) for i in 1:n]
     return (ord_pairs = (birth_idx = birth_idx, death_idx = death_idx),
-            neg_nodes = neg_nodes,
+            neg_nodes = neg_nodes, loop_deaths = loop_deaths,
             roots = roots,
             comp_min = comp_min,
             comp_max = comp_max)
@@ -96,23 +130,25 @@ indices into `v` (pure combinatorics; call inside `@ignore_derivatives`).
 - `ord0` — ascending ordinary 0-dim pairs (branches).
 - `ext0` — one bar per connected component, `(min-node, max-node)` (per-component
   spread).
-- `ext1` — loops (H₁): ascending negative-edge births zipped with descending
-  negative-edge deaths, both sorted by value (descending). Counts match
-  (`β₁ = E − V + C`); the per-bar pairing is canonical but the **total is exact**.
+- `ext1` — loops, paired by the maximum spanning forest on each ascending
+  prefix. For the total-length loss only, two union-find sweeps give the two
+  endpoint multisets without building that forest.
 """
-function _extended_pairs(g, v::AbstractVector)
-    asc = _persistence_pass(g, v; ascending = true)
-    desc = _persistence_pass(g, v; ascending = false)
-
+function _extended_pairs(g, v::AbstractVector; pair_loops::Bool=true)
+    asc = _persistence_pass(g, v; ascending=true, pair_loops)
     ord0 = asc.ord_pairs
 
     rs = unique(asc.roots)
     ext0 = (birth_idx = [asc.comp_min[r] for r in rs],
             death_idx = [asc.comp_max[r] for r in rs])
 
-    births = sort(asc.neg_nodes; by = i -> v[i], rev = true)
-    deaths = sort(desc.neg_nodes; by = i -> v[i], rev = true)
-    ext1 = (birth_idx = births, death_idx = deaths)
+    if pair_loops
+        order = sortperm(v[asc.neg_nodes]; rev=true)
+        ext1 = (birth_idx=asc.neg_nodes[order], death_idx=asc.loop_deaths[order])
+    else
+        desc = _persistence_pass(g, v; ascending=false)
+        ext1 = (birth_idx=asc.neg_nodes, death_idx=desc.neg_nodes)
+    end
 
     return (ord0 = ord0, ext0 = ext0, ext1 = ext1)
 end
@@ -131,6 +167,10 @@ family is a differentiable `(births, deaths)` pair of value vectors gathered fro
 """
 function extended_persistence(g, v::AbstractVector)
     p = ChainRulesCore.@ignore_derivatives _extended_pairs(g, v)
+    return _extended_values(p, v)
+end
+
+function _extended_values(p, v)
     ord0 = (births = v[p.ord0.birth_idx], deaths = v[p.ord0.death_idx])
     ext0 = (births = v[p.ext0.birth_idx], deaths = v[p.ext0.death_idx])
     ext1 = (births = v[p.ext1.birth_idx], deaths = v[p.ext1.death_idx])
@@ -147,15 +187,16 @@ loop-aware default loss for [`optimize_filter`](@ref). Differentiable in `v`
 Sum of bar lengths over the selected homology `dims`:
 
 - `0` → Ord0 + Ext0 (branches and per-component spread),
-- `1` → Ext1 (loops / H₁), computed as `Σbirths − Σdeaths`, which is exact and
-  independent of the canonical per-bar pairing.
+- `1` → Ext1 (loops / H₁), computed as `Σbirths − Σdeaths`
+  from the endpoint multisets without building the individual pairs.
 
 Unlike ordinary [`total_persistence`](@ref), this sees loops: on data whose
 mapper graph is a cycle it is strictly positive, giving a usable gradient where
 0-dim persistence is identically zero.
 """
 function total_extended_persistence(g, v::AbstractVector; dims = (0, 1))
-    ep = extended_persistence(g, v)
+    p = ChainRulesCore.@ignore_derivatives _extended_pairs(g, v; pair_loops=false)
+    ep = _extended_values(p, v)
     dim0 = sum(ep.ord0.deaths .- ep.ord0.births) + sum(ep.ext0.deaths .- ep.ext0.births)
     dim1 = sum(ep.ext1.births) - sum(ep.ext1.deaths)
     return (0 in dims ? dim0 : zero(dim0)) + (1 in dims ? dim1 : zero(dim1))
@@ -180,6 +221,21 @@ end
     @test total_extended_persistence(g, v) ≈ 4.0
     @test total_extended_persistence(g, v; dims = (1,)) ≈ 2.0
     @test total_extended_persistence(g, v; dims = (0,)) ≈ 2.0
+end
+
+@testitem "extended H1 pairs on two loops with nested height ranges" begin
+    using TDAmapper, Graphs
+    graph = SimpleGraph(5)
+    for (a, b) in ((1, 2), (2, 3), (3, 1), (1, 4), (4, 5), (5, 1))
+        add_edge!(graph, a, b)
+    end
+    heights = [2, 0, 5, 1, 4]
+    loops = extended_persistence(graph, heights).ext1
+    @test collect(zip(loops.births, loops.deaths)) == [(5, 0), (4, 1)]
+    @test total_extended_persistence(graph, heights; dims=(1,)) == 8
+
+    flat = extended_persistence(graph, ones(Int, 5)).ext1
+    @test collect(zip(flat.births, flat.deaths)) == [(1, 1), (1, 1)]
 end
 
 @testitem "extended persistence — tent vs circle contrast" begin
@@ -236,11 +292,11 @@ end
     using TDAmapper.IntervalCovers: Uniform
     using TDAmapper.Refiners: DBscan
     using TDAmapper.Nerves: SimpleNerve
-    using MetricSpaces.Datasets: sphere
     using Graphs
     using Zygote, Optimisers            # triggers TDAmapperZygoteExt
 
-    X = sphere(400, dim = 2)            # a circle in ℝ² (β₁ = 1 for any sample)
+    # Equal angular spacing keeps sampling gaps from opening the Mapper loop.
+    X = EuclideanSpace([[cospi(i / 200), sinpi(i / 200)] for i in 0:399])
     θ0 = [0.0, 1.0]                     # height (y) filter
     cover = Uniform(length = 8, expansion = 0.4)
     refiner = DBscan(radius = 0.2)
