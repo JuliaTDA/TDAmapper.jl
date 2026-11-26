@@ -62,7 +62,7 @@ include("mapper.jl")
 export mapper
 
 include("classical_mapper.jl")
-export classical_mapper
+export classical_mapper, ada_mapper
 
 include("ball_mapper.jl")
 export ball_mapper

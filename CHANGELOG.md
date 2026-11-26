@@ -2,6 +2,13 @@
 
 Notable changes to TDAmapper are recorded here.
 
+## Unreleased
+
+- Build intersection nerves from point memberships and eliminate concurrent writes to packed adjacency bits.
+
+- Add `ada_mapper` through a TDARipserer extension. Refine the lens cover using
+  persistent H₁ loops and expose the critical intervals for inspection.
+
 ## v0.1.1 — 5 November 2026
 
 - Allow up to five minutes for Aqua's isolated precompile process to finish on

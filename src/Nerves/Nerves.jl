@@ -25,6 +25,7 @@ All concrete nerve types must implement:
 module Nerves
 
 using MetricSpaces
+using Graphs: SimpleGraph, add_edge!
 using TestItems
 import ..TDAmapper
 using ..TDAmapper: Covering, MapperArgumentError
@@ -74,6 +75,41 @@ for their specific nerve type.
 function make_graph(X::MetricSpace, cover::Covering, N::AbstractNerve)
     error("make_graph not implemented for $(typeof(N)). " *
           "Please implement: make_graph(::MetricSpace, ::Covering, ::$(typeof(N))) -> Graph")
+end
+
+# Index each point once per set, then count overlaps one row at a time.
+function _overlap_graph(accept, cover::Covering)
+    memberships = Dict{Int,Vector{Int}}()
+    for (i, points) in enumerate(cover), point in points
+        sets = get!(Vector{Int}, memberships, point)
+        if isempty(sets) || last(sets) != i
+            push!(sets, i)
+        end
+    end
+
+    graph = SimpleGraph(length(cover))
+    counts = zeros(Int, length(cover))
+    touched = Int[]
+    seen = Set{Int}()
+    for (i, points) in enumerate(cover)
+        empty!(seen)
+        for point in points
+            point in seen && continue
+            push!(seen, point)
+            sets = memberships[point]
+            for k in (searchsortedlast(sets, i) + 1):length(sets)
+                j = sets[k]
+                iszero(counts[j]) && push!(touched, j)
+                counts[j] += 1
+            end
+        end
+        for j in touched
+            accept(counts[j], length(points), length(cover[j])) && add_edge!(graph, i, j)
+            counts[j] = 0
+        end
+        empty!(touched)
+    end
+    return graph
 end
 
 include("simple_nerve.jl")

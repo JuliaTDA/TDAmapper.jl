@@ -37,6 +37,41 @@ function classical_mapper(
     mapper(X, C, R, N)
 end
 
+"""
+    ada_mapper(X::EuclideanSpace; lens=nothing, k=min(5, length(X)-1),
+               basepoint=nothing, min_relative_persistence=0.35, overlap=0.2,
+               regular_intervals=10, max_intervals=10_000, refiner=nothing,
+               nerve=SimpleNerve(), return_details=false)
+
+Build a Mapper graph with a one-dimensional cover refined around persistent
+loops, following [Khourashahi et al. (2026)](https://arxiv.org/abs/2606.04464).
+Load TDARipserer to activate this method.
+
+The input needs distinct finite Euclidean points. The default lens is weighted
+shortest-path distance from a first-coordinate extreme in the symmetric
+`k`-nearest-neighbor graph. Use `basepoint` to select another input point, or
+supply one finite `lens` value per point. The default lens needs a connected
+graph. A custom lens allows disconnected inputs.
+
+Finite Rips H₁ bars with persistence greater than the chosen fraction of the
+maximum are localized using their death triangles. The cover uses the shortest
+nondegenerate critical range to set regular widths and one third of that width
+in loop-critical regions. Without a critical range it uses a uniform cover.
+`refiner` defaults to DBSCAN with a radius derived from nearest-neighbor
+distances. Equal distances and shortest paths are resolved by vertex order.
+
+When `return_details=true`, return the Mapper, lens, critical ranges, final
+cover, and H₁ diagram as a named tuple.
+
+```julia
+using TDAmapper, TDARipserer
+X = EuclideanSpace([[cos(t), sin(t)] for t in range(0, 2π; length=41)[1:40]])
+result = ada_mapper(X; return_details=true)
+result.mapper
+```
+"""
+function ada_mapper end
+
 
 """
     classical_mapper(X, f::Function, cover1, cover2, R=DBscan(), N=SimpleNerve())

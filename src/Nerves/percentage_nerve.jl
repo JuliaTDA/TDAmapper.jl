@@ -1,5 +1,3 @@
-using Graphs
-
 """
     PercentageNerve
 
@@ -25,39 +23,11 @@ Construct a nerve graph where edges require a minimum percentage overlap.
 For mode `:or`, at least one of `|A∩B|/|A|` or `|A∩B|/|B|` must be `>= N.p`.
 For mode `:and`, both ratios must be `>= N.p`.
 
-Overlap checks are performed in parallel using `Threads.@threads` over all
-`(i, j)` pairs with `i < j`, writing to a pre-allocated `BitMatrix` before edges
-are added serially.
+Point memberships identify overlapping cover elements.
 """
 function make_graph(X::MetricSpace, cover::Covering, N::PercentageNerve)
-    n = length(cover)
-    pairs = [(i, j) for i in 1:n for j in (i+1):n]
-
-    has_edge = falses(n, n)
-    Threads.@threads for k in eachindex(pairs)
-        i, j = pairs[k]
-        a, b = cover[i], cover[j]
-        if isempty(a) || isempty(b)
-            continue
-        end
-        inter = length(intersect(a, b))
-        r_i = inter / length(a)
-        r_j = inter / length(b)
-        edge = if N.mode === :or
-            max(r_i, r_j) >= N.p
-        else  # :and
-            min(r_i, r_j) >= N.p
-        end
-        if edge
-            has_edge[i, j] = true
-        end
-    end
-
-    g = SimpleGraph(n)
-    for i in 1:n, j in (i+1):n
-        has_edge[i, j] && add_edge!(g, i, j)
-    end
-    g
+    denominator = N.mode === :or ? min : max
+    return _overlap_graph((count, a, b) -> count / denominator(a, b) >= N.p, cover)
 end
 
 function TDAmapper.validate(n::PercentageNerve)

@@ -14,6 +14,7 @@ Aqua.test_all(TDAmapper;persistent_tasks=(tmax=300,))
 @run_package_tests
 
 include("test_neural_filters.jl")
+include("overlap_nerves.jl")
 
 @testset "Integration tests" begin
     @testset "End-to-end classical mapper on sphere" begin

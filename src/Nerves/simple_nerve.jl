@@ -1,5 +1,3 @@
-using Graphs
-
 """
     SimpleNerve
 
@@ -33,14 +31,11 @@ This function implements the classical nerve construction: two cover elements ar
 connected by an edge if and only if their intersection is non-empty. This creates
 the 1-skeleton of the nerve complex.
 
-Intersection checks are performed in parallel using `Threads.@threads` over all
-`(i, j)` pairs with `i < j`. Results are written to a pre-allocated `BitMatrix`
-(each thread writes to a distinct cell — no locks needed), then edges are added
-serially to the graph.
+Point memberships identify overlapping cover elements.
 
 # Examples
 ```julia
-using TDAmapper
+using TDAmapper, TDAmapper.Nerves
 X = EuclideanSpace([[1.0, 2.0], [3.0, 4.0], [2.0, 3.0]])
 cover = [[1, 3], [2, 3]]  # Two overlapping clusters
 nerve = SimpleNerve()
@@ -48,22 +43,7 @@ graph = make_graph(X, cover, nerve)
 ```
 """
 function make_graph(X::MetricSpace, cover::Covering, N::SimpleNerve)
-    n = length(cover)
-    pairs = [(i, j) for i in 1:n for j in (i+1):n]
-
-    has_edge = falses(n, n)
-    Threads.@threads for k in eachindex(pairs)
-        i, j = pairs[k]
-        if !isempty(cover[i]) && !isempty(cover[j]) && !isempty(intersect(cover[i], cover[j]))
-            has_edge[i, j] = true
-        end
-    end
-
-    g = SimpleGraph(n)
-    for i in 1:n, j in (i+1):n
-        has_edge[i, j] && add_edge!(g, i, j)
-    end
-    g
+    return _overlap_graph((count, _, _) -> count > 0, cover)
 end
 
 TDAmapper.validate(::SimpleNerve) = nothing
